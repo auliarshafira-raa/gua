@@ -1,0 +1,3645 @@
+<!DOCTYPE html>
+<html lang="id"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIwNjA1MDIyNzQ0NTQ1OTA2MTc1NCIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjX2VjMDYxNWNhODdkMWRhZTRfaW5kZXguaHRtbC05OTAifSwiZXhwIjoxNzk1NDQ5Njk4LCJpYXQiOjE3OTU0NDYwOTgsImFsZyI6IlJTMjU2In0.gd3LDJhm-wnqraDPbhHw-XD1qT49CWKm6zf4p1LoPCQrcLAsDdMRwRplnuvG-L4gyIJlEhsdqexaCjcG10ZUYBdbQemz1BIP6z5j2lT2sVKqh456KokPw2ZcY1srrzL_04aj-ZYLRhGvhEdUIw4CkNLUU306fQOFq877lyLfhg9PGiRVuLSBG_-61wKjDo9ZyeFMtD9X9QybgeaO2velplplw2icO0gxgYu3oUlFXrL-abXLP50JdFnVnECbLVWGyO323PMeFgxm3ZvxshjNFRBcIaHo57T46ENZmaXF0CO-WNeg9i-F-7rq3G3s-hk-uDNq9gW7zCKrfht6qdK2_A","c_ec0615ca87d1dae4_index.html-990")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.i=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.extensions="";var l=0,t=null,r=null,q=[],F=new TextEncoder,
+G=new TextDecoder;c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*
+16|0;return(f==="x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;
+(g=t)==null||g.postMessage(a)}};Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  const OVERLAY_SELECTOR =
+    'dialog[open], [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [role="combobox"]';
+
+  function isVisibleOverlay(element) {
+    if (element.closest('[hidden], [aria-hidden="true"], [inert]')) {
+      return false;
+    }
+    if (window.getComputedStyle(element).visibility === 'hidden') {
+      return false;
+    }
+    for (let cur = element; cur; cur = cur.parentElement) {
+      if (window.getComputedStyle(cur).display === 'none') {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function hasOpenOverlay() {
+    const candidates = document.querySelectorAll(OVERLAY_SELECTOR);
+    for (let i = 0; i < candidates.length; i++) {
+      if (isVisibleOverlay(candidates[i])) {
+        return true;
+      }
+    }
+    try {
+      if (document.querySelector('[popover]:popover-open')) {
+        return true;
+      }
+    } catch (e) {
+      // Ignore engines that do not support :popover-open.
+    }
+    return false;
+  }
+
+  function isNonEmptySearchInput(target) {
+    return (
+      Boolean(target) &&
+      target.tagName === 'INPUT' &&
+      typeof target.type === 'string' &&
+      target.type.toLowerCase() === 'search' &&
+      typeof target.value === 'string' &&
+      target.value.length > 0
+    );
+  }
+
+  function shouldIgnoreEscape(event) {
+    return (
+      event.key !== 'Escape' ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.isComposing ||
+      event.repeat ||
+      event.keyCode === 229 ||
+      isNonEmptySearchInput(event.target)
+    );
+  }
+
+  let shouldIgnoreCaptureState = false;
+
+  window.addEventListener(
+    'keydown',
+    function(event) {
+      if (event.key === 'Escape') {
+        shouldIgnoreCaptureState =
+          hasOpenOverlay() || isNonEmptySearchInput(event.target);
+      }
+    },
+    {capture: true},
+  );
+
+  window.addEventListener('keydown', function(event) {
+    if (
+      shouldIgnoreEscape(event) ||
+      event.defaultPrevented ||
+      shouldIgnoreCaptureState
+    ) {
+      return;
+    }
+    const wasBlockedOnCapture = shouldIgnoreCaptureState;
+    queueMicrotask(function() {
+      if (event.defaultPrevented || wasBlockedOnCapture) {
+        return;
+      }
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({'type': 'escapeKey'}, '*');
+      }
+    });
+  });
+})();</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game untuk Abang dari Adik</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&amp;family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --bg-dark: #3B2922;
+            --bg-mocha: #654638;
+            --accent-caramel: #A98265;
+            --accent-sand: #D8C3A5;
+            --text-cream: #F5EFE5;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #2A1C16;
+            color: var(--text-cream);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        .font-cinzel {
+            font-family: 'Cinzel', Georgia, serif;
+        }
+
+        #game-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            touch-action: none;
+        }
+
+        .earth-panel {
+            background: rgba(59, 41, 34, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(216, 195, 165, 0.28);
+            box-shadow: 0 12px 30px rgba(24, 15, 11, 0.42);
+        }
+
+        .choc-card {
+            background: linear-gradient(155deg, rgba(59, 41, 34, 0.96), rgba(101, 70, 56, 0.94));
+            border: 1px solid rgba(216, 195, 165, 0.34);
+            box-shadow: 0 24px 60px rgba(20, 12, 9, 0.65);
+        }
+
+        .btn-caramel {
+            background: linear-gradient(135deg, #A98265, #8A654B);
+            color: #F5EFE5;
+            border: 1px solid rgba(245, 239, 229, 0.25);
+            box-shadow: 0 4px 14px rgba(32, 20, 14, 0.35);
+            transition: transform 0.12s ease, filter 0.15s ease;
+        }
+
+        .btn-caramel:hover {
+            filter: brightness(1.08);
+        }
+
+        .btn-caramel:active {
+            transform: scale(0.97);
+        }
+
+        .btn-mocha {
+            background: rgba(101, 70, 56, 0.88);
+            color: #F5EFE5;
+            border: 1px solid rgba(216, 195, 165, 0.28);
+            transition: transform 0.12s ease, background-color 0.15s ease;
+        }
+
+        .btn-mocha:hover {
+            background: rgba(122, 86, 69, 0.95);
+        }
+
+        .btn-mocha:active {
+            transform: scale(0.97);
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(42, 28, 22, 0.4);
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(169, 130, 101, 0.65);
+            border-radius: 999px;
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.pointer-events-auto{pointer-events:auto}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.inset-0{inset:0px}.bottom-20{bottom:5rem}.bottom-3{bottom:0.75rem}.left-1\/2{left:50%}.left-3{left:0.75rem}.right-3{right:0.75rem}.top-3{top:0.75rem}.z-10{z-index:10}.z-20{z-index:20}.z-30{z-index:30}.z-40{z-index:40}.z-50{z-index:50}.z-\[60\]{z-index:60}.my-3{margin-top:0.75rem;margin-bottom:0.75rem}.my-auto{margin-top:auto;margin-bottom:auto}.mb-1\.5{margin-bottom:0.375rem}.mb-2{margin-bottom:0.5rem}.mb-6{margin-bottom:1.5rem}.ml-1{margin-left:0.25rem}.mt-0\.5{margin-top:0.125rem}.mt-2{margin-top:0.5rem}.mb-1{margin-bottom:0.25rem}.mb-4{margin-bottom:1rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-10{height:2.5rem}.h-2\.5{height:0.625rem}.h-6{height:1.5rem}.h-7{height:1.75rem}.max-h-\[88vh\]{max-height:88vh}.max-h-\[92vh\]{max-height:92vh}.w-12{width:3rem}.w-2\.5{width:0.625rem}.w-28{width:7rem}.w-6{width:1.5rem}.w-7{width:1.75rem}.w-\[92\%\]{width:92%}.w-full{width:100%}.min-w-0{min-width:0px}.max-w-2xl{max-width:42rem}.max-w-\[180px\]{max-width:180px}.max-w-md{max-width:28rem}.max-w-xl{max-width:36rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.-translate-x-1\/2{--tw-translate-x:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-1\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.375rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.375rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.overflow-y-auto{overflow-y:auto}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.rounded-bl-lg{border-bottom-left-radius:0.5rem}.rounded-br-lg{border-bottom-right-radius:0.5rem}.rounded-tl-lg{border-top-left-radius:0.5rem}.rounded-tr-lg{border-top-right-radius:0.5rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-b-2{border-bottom-width:2px}.border-l-2{border-left-width:2px}.border-r-2{border-right-width:2px}.border-t-2{border-top-width:2px}.border-\[\#D8C3A5\]{--tw-border-opacity:1;border-color:rgb(216 195 165 / var(--tw-border-opacity, 1))}.border-\[\#D8C3A5\]\/20{border-color:rgb(216 195 165 / 0.2)}.border-\[\#D8C3A5\]\/25{border-color:rgb(216 195 165 / 0.25)}.border-\[\#D8C3A5\]\/35{border-color:rgb(216 195 165 / 0.35)}.border-\[\#D8C3A5\]\/40{border-color:rgb(216 195 165 / 0.4)}.border-\[\#D8C3A5\]\/45{border-color:rgb(216 195 165 / 0.45)}.border-\[\#F5EFE5\]\/35{border-color:rgb(245 239 229 / 0.35)}.border-\[\#F5EFE5\]\/60{border-color:rgb(245 239 229 / 0.6)}.border-\[\#F5EFE5\]\/90{border-color:rgb(245 239 229 / 0.9)}.bg-\[\#2A1C16\]\/70{background-color:rgb(42 28 22 / 0.7)}.bg-\[\#2A1C16\]\/75{background-color:rgb(42 28 22 / 0.75)}.bg-\[\#2A1C16\]\/90{background-color:rgb(42 28 22 / 0.9)}.bg-\[\#3B2922\]{--tw-bg-opacity:1;background-color:rgb(59 41 34 / var(--tw-bg-opacity, 1))}.bg-\[\#3B2922\]\/65{background-color:rgb(59 41 34 / 0.65)}.bg-\[\#654638\]{--tw-bg-opacity:1;background-color:rgb(101 70 56 / var(--tw-bg-opacity, 1))}.bg-\[\#A98265\]{--tw-bg-opacity:1;background-color:rgb(169 130 101 / var(--tw-bg-opacity, 1))}.bg-\[\#A98265\]\/25{background-color:rgb(169 130 101 / 0.25)}.bg-\[\#D8C3A5\]{--tw-bg-opacity:1;background-color:rgb(216 195 165 / var(--tw-bg-opacity, 1))}.bg-black\/65{background-color:rgb(0 0 0 / 0.65)}.bg-transparent{background-color:transparent}.bg-\[\#3B2922\]\/85{background-color:rgb(59 41 34 / 0.85)}.p-3{padding:0.75rem}.p-3\.5{padding:0.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-3\.5{padding-top:0.875rem;padding-bottom:0.875rem}.pb-2{padding-bottom:0.5rem}.text-left{text-align:left}.text-center{text-align:center}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-tight{line-height:1.25}.tracking-wide{letter-spacing:0.025em}.tracking-wider{letter-spacing:0.05em}.text-\[\#D8C3A5\]{--tw-text-opacity:1;color:rgb(216 195 165 / var(--tw-text-opacity, 1))}.text-\[\#F5EFE5\]{--tw-text-opacity:1;color:rgb(245 239 229 / var(--tw-text-opacity, 1))}.opacity-85{opacity:0.85}.shadow{--tw-shadow:0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.file\:mr-3::file-selector-button{margin-right:0.75rem}.file\:rounded-xl::file-selector-button{border-radius:0.75rem}.file\:border-0::file-selector-button{border-width:0px}.file\:bg-\[\#A98265\]::file-selector-button{--tw-bg-opacity:1;background-color:rgb(169 130 101 / var(--tw-bg-opacity, 1))}.file\:px-3::file-selector-button{padding-left:0.75rem;padding-right:0.75rem}.file\:py-2::file-selector-button{padding-top:0.5rem;padding-bottom:0.5rem}.file\:text-xs::file-selector-button{font-size:0.75rem;line-height:1rem}.file\:font-extrabold::file-selector-button{font-weight:800}.file\:text-\[\#F5EFE5\]::file-selector-button{--tw-text-opacity:1;color:rgb(245 239 229 / var(--tw-text-opacity, 1))}.focus\:border-\[\#D8C3A5\]:focus{--tw-border-opacity:1;border-color:rgb(216 195 165 / var(--tw-border-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}@media (min-width: 640px){.sm\:w-auto{width:auto}.sm\:max-w-sm{max-width:24rem}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-end{align-items:flex-end}.sm\:gap-2{gap:0.5rem}.sm\:p-4{padding:1rem}.sm\:p-6{padding:1.5rem}.sm\:p-8{padding:2rem}.sm\:text-4xl{font-size:2.25rem;line-height:2.5rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}.sm\:text-2xl{font-size:1.5rem;line-height:2rem}}@media (min-width: 768px){.md\:block{display:block}}</style></head>
+<body>
+    <!-- Full-Viewport 3D Canvas -->
+    <canvas id="game-canvas" width="1416" height="1656"></canvas>
+
+    <!-- Subtle Center Crosshair for POV Mode -->
+    <div id="pov-reticle" class="pointer-events-none fixed inset-0 z-10 hidden items-center justify-center">
+        <div class="w-2.5 h-2.5 rounded-full border border-[#F5EFE5]/90 bg-[#3B2922]/65 shadow"></div>
+    </div>
+
+    <!-- Real Camera Viewfinder Overlay ("Fotoin Adek") -->
+    <div id="photo-viewfinder" class="pointer-events-none fixed inset-0 z-30 hidden flex-col justify-between p-4 sm:p-6">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="earth-panel rounded-2xl px-4 py-2 text-xs sm:text-sm font-bold text-[#F5EFE5]">
+                📸 Mode Fotoin Adek • Arahkan kamera (drag / panah) lalu jepret!
+            </div>
+            <div class="pointer-events-auto flex items-center gap-2">
+                <button type="button" onclick="cyclePhotoPose()" class="btn-mocha px-3 py-2 rounded-xl text-xs font-bold cursor-pointer">
+                    ✨ Pose: <span id="photo-pose-label">Senyum Manis</span>
+                </button>
+                <button type="button" onclick="exitPhotoMode()" class="btn-mocha px-3 py-2 rounded-xl text-xs font-bold cursor-pointer">
+                    ✕ Batal
+                </button>
+            </div>
+        </div>
+
+        <div class="relative flex-1 my-3 rounded-3xl border border-[#F5EFE5]/35 pointer-events-none">
+            <div class="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-[#D8C3A5] rounded-tl-lg"></div>
+            <div class="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-[#D8C3A5] rounded-tr-lg"></div>
+            <div class="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-[#D8C3A5] rounded-bl-lg"></div>
+            <div class="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-[#D8C3A5] rounded-br-lg"></div>
+        </div>
+
+        <div class="pointer-events-auto flex items-center justify-center gap-3">
+            <button type="button" onclick="snapAdekPhoto()" class="btn-caramel px-6 py-3 rounded-2xl text-sm font-extrabold cursor-pointer">
+                📷 Jepret Foto Adek
+            </button>
+            <button type="button" onclick="openGalleryModal()" class="btn-mocha px-4 py-3 rounded-2xl text-xs font-bold cursor-pointer">
+                🖼️ Galeri (<span id="viewfinder-photo-count">0</span>)
+            </button>
+        </div>
+    </div>
+
+    <!-- Clean Start Screen Overlay ("Game untuk Abang dari Adik") -->
+    <div id="start-screen" class="fixed inset-0 z-40 flex items-center justify-center p-4 bg-[#2A1C16]/75 backdrop-blur-xs hidden">
+        <div class="choc-card max-w-xl w-full rounded-3xl p-6 sm:p-8 text-[#F5EFE5] max-h-[92vh] overflow-y-auto custom-scroll">
+            <div class="text-center mb-6">
+                <div class="inline-block px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-[#A98265]/25 border border-[#D8C3A5]/35 text-[#D8C3A5] mb-2">
+                    5 KOTA • WAHANA • INTERIOR • ADEK • 3 LAGU LOOP
+                </div>
+                <h1 class="font-cinzel text-2xl sm:text-4xl font-bold text-[#F5EFE5] leading-tight">
+                    Game untuk Abang dari Adik
+                </h1>
+                <p class="text-xs sm:text-sm text-[#D8C3A5] mt-2">
+                    Edinburgh, London, Amsterdam, Perancis &amp; Manchester — jelajahi jalanan, masuk gedung ber-display, naik wahana &amp; kendaraan, serta jalan bareng Adek.
+                </p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label for="start-name-input" class="block text-xs font-bold uppercase tracking-wider text-[#D8C3A5] mb-1.5">
+                        Nama Karakter
+                    </label>
+                    <input id="start-name-input" type="text" maxlength="20" value="Abang" class="w-full px-4 py-2.5 rounded-xl bg-[#2A1C16]/90 border border-[#D8C3A5]/35 text-[#F5EFE5] text-sm font-semibold focus:outline-none focus:border-[#D8C3A5]">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <span class="block text-xs font-bold uppercase tracking-wider text-[#D8C3A5] mb-1.5">
+                            Gender Karakter
+                        </span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" id="start-gender-cowok" onclick="selectStartGender('Cowok')" class="py-2.5 px-3 rounded-xl text-xs font-extrabold border border-[#D8C3A5]/45 bg-[#A98265] text-[#F5EFE5] cursor-pointer">
+                                Cowok
+                            </button>
+                            <button type="button" id="start-gender-cewek" onclick="selectStartGender('Cewek')" class="py-2.5 px-3 rounded-xl text-xs font-extrabold border border-[#D8C3A5]/25 bg-[#2A1C16]/75 text-[#D8C3A5] cursor-pointer">
+                                Cewek
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="start-shirt-color" class="block text-xs font-bold uppercase tracking-wider text-[#D8C3A5] mb-1.5">
+                            Warna Baju Awal
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <input id="start-shirt-color" type="color" value="#A98265" class="w-12 h-10 rounded-xl border border-[#D8C3A5]/40 bg-transparent cursor-pointer">
+                            <div class="flex gap-1.5">
+                                <button type="button" onclick="pickShirtColor('#A98265')" class="w-7 h-7 rounded-full bg-[#A98265] border border-[#F5EFE5]/60 cursor-pointer" title="Caramel"></button>
+                                <button type="button" onclick="pickShirtColor('#654638')" class="w-7 h-7 rounded-full bg-[#654638] border border-[#F5EFE5]/60 cursor-pointer" title="Mocha"></button>
+                                <button type="button" onclick="pickShirtColor('#3B2922')" class="w-7 h-7 rounded-full bg-[#3B2922] border border-[#F5EFE5]/60 cursor-pointer" title="Dark Chocolate"></button>
+                                <button type="button" onclick="pickShirtColor('#D8C3A5')" class="w-7 h-7 rounded-full bg-[#D8C3A5] border border-[#F5EFE5]/60 cursor-pointer" title="Sand"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl p-3.5 bg-[#2A1C16]/70 border border-[#D8C3A5]/25 text-xs text-[#D8C3A5]">
+                    <div class="font-bold text-[#F5EFE5]">Adek • Jilbab Coklat &amp; Baju Cream (Selalu di Samping)</div>
+                    <div class="mt-0.5">Berjalan, bergandengan tangan, makan Sushi Salmon Sashimi, minum Teazzi &amp; Boost Juice, naik kendaraan/wahana, dan difoto.</div>
+                </div>
+
+                <button type="button" onclick="startGameSession()" class="btn-caramel w-full py-3.5 rounded-2xl text-sm sm:text-base font-extrabold tracking-wide cursor-pointer">
+                    Mulai Bermain
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Gameplay HUD -->
+    <div id="game-hud" class="pointer-events-none fixed inset-0 z-20 flex-col justify-between p-3 sm:p-4 flex">
+        <!-- Top Row -->
+        <div class="flex flex-wrap items-start justify-between gap-2">
+            <!-- Player, City & Mission Card -->
+            <div class="pointer-events-auto earth-panel rounded-2xl p-3 text-[#F5EFE5] w-full sm:w-auto sm:max-w-sm">
+                <div class="flex items-center justify-between gap-3 border-b border-[#D8C3A5]/20 pb-2 mb-2">
+                    <div>
+                        <div id="hud-player-title" class="text-xs font-extrabold text-[#F5EFE5]">Abang • Cowok</div>
+                        <div class="text-[11px] text-[#D8C3A5]">
+                            Kota: <strong id="hud-city-label" class="text-[#F5EFE5]">Edinburgh</strong>
+                            <span id="hud-time-badge" class="ml-1 opacity-85">• Siang</span>
+                        </div>
+                    </div>
+                    <button type="button" onclick="openCityModal()" class="btn-caramel px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold cursor-pointer">
+                        5 Kota
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 text-[11px]">
+                    <div class="bg-[#2A1C16]/75 rounded-xl px-2 py-1.5">
+                        <div class="text-[#D8C3A5]">Saldo</div>
+                        <div id="hud-saldo" class="font-extrabold text-[#F5EFE5]">Rp 250.000</div>
+                    </div>
+                    <div class="bg-[#2A1C16]/75 rounded-xl px-2 py-1.5">
+                        <div class="text-[#D8C3A5]">Energi</div>
+                        <div id="hud-energi" class="font-extrabold text-[#F5EFE5]">100%</div>
+                    </div>
+                    <div class="bg-[#2A1C16]/75 rounded-xl px-2 py-1.5">
+                        <div class="text-[#D8C3A5]">Adek</div>
+                        <div id="hud-adek-state" class="font-extrabold text-[#F5EFE5]">Di Samping</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons + 3-Song Looping Music Player -->
+            <div class="pointer-events-auto flex flex-wrap items-center justify-end gap-1.5 sm:gap-2 max-w-2xl">
+                <button type="button" onclick="enterPhotoMode()" class="btn-caramel px-3 py-2 rounded-xl text-xs font-extrabold cursor-pointer">
+                    📸 Fotoin Adek [P]
+                </button>
+                <button type="button" onclick="openGalleryModal()" class="btn-mocha px-3 py-2 rounded-xl text-xs font-bold cursor-pointer">
+                    🖼️ Galeri (<span id="hud-gallery-count">0</span>)
+                </button>
+                <button type="button" onclick="openPovMenu()" class="btn-mocha px-3 py-2 rounded-xl text-xs font-bold cursor-pointer">
+                    👁️ Menu POV [V]
+                </button>
+                <button type="button" onclick="openAdekModal()" class="btn-mocha px-3 py-2 rounded-xl text-xs font-bold cursor-pointer">
+                    🧕🏻 Menu Adek [G]
+                </button>
+                <button type="button" onclick="openBagModal()" class="btn-mocha px-3 py-2 rounded-xl text-xs font-bold cursor-pointer">
+                    🎒 Tas
+                </button>
+                <button type="button" onclick="openMapModal()" class="btn-mocha px-3 py-2 rounded-xl text-xs font-bold cursor-pointer">
+                    🗺️ Peta Kota [M]
+                </button>
+                <button type="button" id="touch-toggle-btn" onclick="toggleTouchBar()" class="btn-mocha px-3 py-2 rounded-xl text-xs font-bold cursor-pointer">🎮 Touch Bar: On</button>
+                <button type="button" onclick="openSettingsModal()" class="btn-mocha px-3 py-2 rounded-xl text-xs font-bold cursor-pointer">
+                    ⚙️ Pengaturan
+                </button>
+
+                <!-- 3-Song Looping Music Bar -->
+                <div class="earth-panel rounded-2xl px-3 py-2 flex items-center gap-2 text-xs text-[#F5EFE5] w-full sm:w-auto justify-between">
+                    <div class="min-w-0">
+                        <div class="text-[10px] uppercase tracking-wider text-[#D8C3A5]">🎵 Loop <span id="music-track-counter">2/3</span></div>
+                        <div id="music-now-playing" class="font-bold truncate max-w-[180px]">Silence - Marshmello ft. Khalid</div>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button type="button" onclick="musicEngine.prev()" class="btn-mocha px-2 py-1.5 rounded-xl text-xs font-bold cursor-pointer" title="Sebelumnya">⏮️</button>
+                        <button type="button" id="music-play-btn" onclick="musicEngine.toggle()" class="btn-caramel px-2.5 py-1.5 rounded-xl text-xs font-extrabold cursor-pointer" title="Putar/Jeda">⏸️</button>
+                        <button type="button" onclick="musicEngine.next()" class="btn-mocha px-2 py-1.5 rounded-xl text-xs font-bold cursor-pointer" title="Berikutnya">⏭️</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Contextual Interaction Prompt -->
+        <div class="my-auto flex justify-center pointer-events-none">
+            <div id="interact-banner" class="pointer-events-auto hidden earth-panel rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-extrabold text-[#F5EFE5]">
+                <button type="button" onclick="performNearestInteraction()" class="cursor-pointer flex items-center gap-2">
+                    <span>⚡</span>
+                    <span id="interact-banner-label">Tekan [E] untuk Masuk</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Bottom Row: Controls Guide & Toggleable Touch Bar -->
+        <div class="flex flex-col sm:flex-row items-center sm:items-end justify-between gap-2">
+            <div class="earth-panel rounded-2xl px-3 py-2 text-[11px] text-[#D8C3A5] hidden md:block">
+                <strong class="text-[#F5EFE5]">WASD / Panah</strong> Gerak &amp; Toleh • <strong class="text-[#F5EFE5]">Klik / Drag / Q-E</strong> 360° • <strong class="text-[#F5EFE5]">E</strong> Masuk / Naik • <strong class="text-[#F5EFE5]">V</strong> POV • <strong class="text-[#F5EFE5]">G</strong> Adek • <strong class="text-[#F5EFE5]">P</strong> Foto • <strong class="text-[#F5EFE5]">M</strong> Peta
+            </div>
+
+            <!-- Toggleable On-Screen Touch Bar -->
+            <div id="touch-bar-panel" class="pointer-events-auto flex flex-wrap items-center justify-center gap-2 earth-panel rounded-2xl px-3 py-2">
+                <div class="grid grid-cols-3 gap-1 w-28">
+                    <div></div>
+                    <button type="button" data-code="KeyW" class="touch-pad btn-mocha py-1.5 rounded-lg text-xs font-extrabold cursor-pointer">▲</button>
+                    <div></div>
+                    <button type="button" data-code="KeyA" class="touch-pad btn-mocha py-1.5 rounded-lg text-xs font-extrabold cursor-pointer">◀</button>
+                    <button type="button" data-code="KeyS" class="touch-pad btn-mocha py-1.5 rounded-lg text-xs font-extrabold cursor-pointer">▼</button>
+                    <button type="button" data-code="KeyD" class="touch-pad btn-mocha py-1.5 rounded-lg text-xs font-extrabold cursor-pointer">▶</button>
+                </div>
+                <div class="flex flex-wrap gap-1.5">
+                    <button type="button" onclick="performNearestInteraction()" class="btn-caramel px-3 py-2 rounded-xl text-xs font-extrabold cursor-pointer">
+                        ⚡ Aksi [E]
+                    </button>
+                    <button type="button" onclick="enterPhotoMode()" class="btn-mocha px-3 py-2 rounded-xl text-xs font-bold cursor-pointer">
+                        📸 Foto [P]
+                    </button>
+                    <button type="button" onclick="openPovMenu()" class="btn-mocha px-3 py-2 rounded-xl text-xs font-bold cursor-pointer">
+                        👁️ POV [V]
+                    </button>
+                    <button type="button" onclick="openAdekModal()" class="btn-mocha px-3 py-2 rounded-xl text-xs font-bold cursor-pointer">
+                        🧕🏻 Adek [G]
+                    </button>
+                    <button type="button" onclick="toggleTouchBar()" class="btn-mocha px-2.5 py-2 rounded-xl text-xs font-bold cursor-pointer">
+                        Sembunyikan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Container -->
+    <div id="modal-overlay" class="fixed inset-0 z-50 items-center justify-center p-4 bg-black/65 backdrop-blur-xs flex">
+        <div id="modal-box" class="choc-card max-w-2xl w-full rounded-3xl p-5 sm:p-6 text-[#F5EFE5] max-h-[88vh] overflow-y-auto custom-scroll">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="font-cinzel text-xl sm:text-2xl font-bold text-[#F5EFE5]">⚙️ Pengaturan</h2>
+                    <button type="button" onclick="closeModalDialog()" class="px-3 py-1 rounded-xl btn-mocha font-bold cursor-pointer">✕</button>
+                </div>
+
+                <div class="space-y-3 text-xs">
+                    <div class="p-3 rounded-xl bg-[#3B2922]/85 border border-[#D8C3A5]/20">
+                        <div class="font-extrabold text-[#F5EFE5] mb-1.5">🎵 Daftar 3 Lagu Loop</div>
+                        <div class="space-y-1.5 mb-2">
+                            
+                                <button type="button" onclick="musicEngine.selectTrack(0);openSettingsModal();" class="w-full text-left px-3 py-2 rounded-xl btn-mocha font-semibold cursor-pointer">
+                                    1. Bersenja Gurau - Raim Laode
+                                </button>
+                            
+                                <button type="button" onclick="musicEngine.selectTrack(1);openSettingsModal();" class="w-full text-left px-3 py-2 rounded-xl btn-caramel font-extrabold cursor-pointer">
+                                    2. Silence - Marshmello ft. Khalid
+                                </button>
+                            
+                                <button type="button" onclick="musicEngine.selectTrack(2);openSettingsModal();" class="w-full text-left px-3 py-2 rounded-xl btn-mocha font-semibold cursor-pointer">
+                                    3. Sweet Scar - Weird Genius ft. Prince Husein
+                                </button>
+                            
+                        </div>
+                        <div class="font-bold text-[#D8C3A5] mb-1">Muat File MP3 Lokal</div>
+                        <input type="file" accept="audio/*" multiple="" onchange="musicEngine.loadLocalFiles(this.files)" class="block w-full text-xs text-[#D8C3A5] file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-[#A98265] file:text-[#F5EFE5] cursor-pointer">
+                    </div>
+
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-[#3B2922]/85 border border-[#D8C3A5]/20">
+                        <div>
+                            <div class="font-extrabold text-[#F5EFE5]">🎮 Touch Bar</div>
+                            <div class="text-[#D8C3A5]">Tampilkan atau sembunyikan Touch Bar di layar</div>
+                        </div>
+                        <button type="button" onclick="toggleTouchBar();openSettingsModal();" class="btn-caramel px-3 py-2 rounded-xl font-extrabold cursor-pointer">
+                            Sembunyikan
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-[#3B2922]/85 border border-[#D8C3A5]/20">
+                        <div>
+                            <div class="font-extrabold text-[#F5EFE5]">📋 Salin Kode HTML</div>
+                            <div class="text-[#D8C3A5]">Salin seluruh kode HTML satu file ke clipboard</div>
+                        </div>
+                        <button type="button" onclick="copySourceHtmlToClipboard()" class="btn-caramel px-3 py-2 rounded-xl font-extrabold cursor-pointer">
+                            Salin Kode HTML
+                        </button>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-banner" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-[60] pointer-events-none max-w-md w-[92%] hidden">
+        <div class="earth-panel rounded-2xl px-4 py-3 text-[#F5EFE5]">
+            <div id="toast-heading" class="text-xs sm:text-sm font-extrabold text-[#F5EFE5]">Halo, Abang!</div>
+            <div id="toast-body" class="text-xs text-[#D8C3A5] mt-0.5" style="display: block;">Adek berjilbab coklat &amp; baju cream siap di sampingmu di 5 kota.</div>
+        </div>
+    </div>
+
+    <script>
+        // =====================================================================
+        // SAFE CLIPBOARD & MODAL / TOAST UTILITIES
+        // =====================================================================
+        function copySourceHtmlToClipboard() {
+            // Read-only snapshot of the HTML document without mutating DOM, scene, or actor state
+            const source = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+            let copied = false;
+            try {
+                if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                    navigator.clipboard.writeText(source).catch(() => {});
+                }
+            } catch (err) {}
+            try {
+                const area = document.createElement('textarea');
+                area.value = source;
+                area.setAttribute('readonly', '');
+                area.style.position = 'fixed';
+                area.style.top = '0';
+                area.style.left = '-9999px';
+                area.style.opacity = '0';
+                document.body.appendChild(area);
+                area.focus();
+                area.select();
+                copied = Boolean(document.execCommand('copy'));
+                document.body.removeChild(area);
+                if (typeof window.getSelection === 'function') {
+                    const sel = window.getSelection();
+                    if (sel && typeof sel.removeAllRanges === 'function') sel.removeAllRanges();
+                }
+            } catch (err) {}
+
+            ensureCharactersHealthyAndVisible();
+            if (copied) {
+                showToast('📋 Kode HTML berhasil disalin!', 'Seluruh kode satu file disalin tanpa mengubah dunia 3D atau karakter.');
+            } else {
+                showToast('📋 Kode HTML Disalin', 'Salinan siap ditempel (paste) ke editor atau file HTML kamu.');
+            }
+        }
+
+        let toastTimeout = null;
+        function showToast(heading, body = '') {
+            const banner = document.getElementById('toast-banner');
+            const hEl = document.getElementById('toast-heading');
+            const bEl = document.getElementById('toast-body');
+            if (!banner || !hEl || !bEl) return;
+            hEl.textContent = heading;
+            bEl.textContent = body;
+            bEl.style.display = body ? 'block' : 'none';
+            banner.classList.remove('hidden');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                banner.classList.add('hidden');
+            }, 3400);
+        }
+
+        function openModalDialog(contentHtml, releasePointerLock = false) {
+            const overlay = document.getElementById('modal-overlay');
+            const box = document.getElementById('modal-box');
+            if (!overlay || !box) return;
+            box.innerHTML = contentHtml;
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            if (releasePointerLock) {
+                try {
+                    if (document.pointerLockElement && typeof document.exitPointerLock === 'function') {
+                        document.exitPointerLock();
+                    }
+                } catch (err) {}
+            }
+            ensureCharactersHealthyAndVisible();
+        }
+
+        function closeModalDialog() {
+            const overlay = document.getElementById('modal-overlay');
+            if (!overlay) return;
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+            ensureCharactersHealthyAndVisible();
+        }
+
+        // =====================================================================
+        // 3-SONG LOOPING MUSIC ENGINE (WEB AUDIO SYNTHESIS + LOCAL MP3 FILES)
+        // =====================================================================
+        const LOOP_TRACKS_3 = [
+            {
+                title: 'Bersenja Gurau - Raim Laode',
+                notes: [261.63, 329.63, 392.00, 440.00, 392.00, 329.63, 293.66, 349.23],
+                tempoMs: 410,
+                wave: 'triangle'
+            },
+            {
+                title: 'Silence - Marshmello ft. Khalid',
+                notes: [220.00, 261.63, 329.63, 392.00, 349.23, 329.63, 261.63, 246.94],
+                tempoMs: 380,
+                wave: 'sine'
+            },
+            {
+                title: 'Sweet Scar - Weird Genius ft. Prince Husein',
+                notes: [293.66, 369.99, 440.00, 554.37, 587.33, 440.00, 369.99, 329.63],
+                tempoMs: 350,
+                wave: 'triangle'
+            }
+        ];
+
+        const musicEngine = {
+            audioCtx: null,
+            htmlAudio: null,
+            isPlaying: false,
+            loopEnabled: true,
+            trackIdx: 0,
+            noteStep: 0,
+            intervalId: null,
+            localTracks: [],
+
+            getContext() {
+                try {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (!AudioCtx) return null;
+                    if (!this.audioCtx) {
+                        this.audioCtx = new AudioCtx();
+                    }
+                    if (this.audioCtx.state === 'suspended') {
+                        this.audioCtx.resume().catch(() => {});
+                    }
+                    return this.audioCtx;
+                } catch (err) {
+                    return null;
+                }
+            },
+
+            trackCount() {
+                return this.localTracks.length > 0 ? this.localTracks.length : LOOP_TRACKS_3.length;
+            },
+
+            currentTrack() {
+                const count = this.trackCount();
+                const idx = ((this.trackIdx % count) + count) % count;
+                if (this.localTracks.length > 0) {
+                    return this.localTracks[idx];
+                }
+                return LOOP_TRACKS_3[idx];
+            },
+
+            syncLabels() {
+                const count = this.trackCount();
+                const idx = (((this.trackIdx % count) + count) % count) + 1;
+                const track = this.currentTrack();
+                const nowEl = document.getElementById('music-now-playing');
+                const cntEl = document.getElementById('music-track-counter');
+                const btnEl = document.getElementById('music-play-btn');
+                if (nowEl) nowEl.textContent = track.title;
+                if (cntEl) cntEl.textContent = `${idx}/${count}`;
+                if (btnEl) btnEl.textContent = this.isPlaying ? '⏸️' : '▶️';
+            },
+
+            playSynthNote(freq, sec, waveType) {
+                const ctx = this.getContext();
+                if (!ctx || !this.isPlaying) return;
+                try {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = waveType || 'triangle';
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+                    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.042, ctx.currentTime + 0.035);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + sec);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + sec + 0.02);
+                } catch (err) {}
+            },
+
+            playUiTone(freq = 540, duration = 0.085) {
+                const ctx = this.getContext();
+                if (!ctx) return;
+                try {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.03, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + duration + 0.01);
+                } catch (err) {}
+            },
+
+            playChime() {
+                const ctx = this.getContext();
+                if (!ctx) return;
+                [523.25, 659.25, 783.99].forEach((f, idx) => {
+                    try {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        const t = ctx.currentTime + idx * 0.085;
+                        osc.frequency.setValueAtTime(f, t);
+                        gain.gain.setValueAtTime(0.038, t);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(t);
+                        osc.stop(t + 0.2);
+                    } catch (err) {}
+                });
+            },
+
+            start() {
+                this.isPlaying = true;
+                this.getContext();
+                clearInterval(this.intervalId);
+                this.syncLabels();
+
+                const track = this.currentTrack();
+                if (track.url) {
+                    if (!this.htmlAudio) {
+                        this.htmlAudio = new Audio();
+                        this.htmlAudio.addEventListener('ended', () => {
+                            if (this.loopEnabled) {
+                                this.next();
+                            } else {
+                                this.pause();
+                            }
+                        });
+                    }
+                    if (this.htmlAudio.src !== track.url) {
+                        this.htmlAudio.src = track.url;
+                    }
+                    this.htmlAudio.play().catch(() => {});
+                } else if (this.htmlAudio) {
+                    try { this.htmlAudio.pause(); } catch (err) {}
+                }
+
+                const stepMs = track.tempoMs || 390;
+                this.intervalId = setInterval(() => {
+                    if (!this.isPlaying) return;
+                    const active = this.currentTrack();
+                    if (!active.url && Array.isArray(active.notes) && active.notes.length > 0) {
+                        const freq = active.notes[this.noteStep % active.notes.length];
+                        this.playSynthNote(freq, (stepMs / 1000) * 0.85, active.wave);
+                        this.noteStep++;
+                        if (this.noteStep % 24 === 0 && this.loopEnabled) {
+                            this.trackIdx = (this.trackIdx + 1) % LOOP_TRACKS_3.length;
+                            this.syncLabels();
+                        }
+                    }
+                }, stepMs);
+            },
+
+            pause() {
+                this.isPlaying = false;
+                clearInterval(this.intervalId);
+                if (this.htmlAudio) {
+                    try { this.htmlAudio.pause(); } catch (err) {}
+                }
+                this.syncLabels();
+            },
+
+            toggle() {
+                if (this.isPlaying) this.pause();
+                else this.start();
+            },
+
+            next() {
+                this.trackIdx = (this.trackIdx + 1) % this.trackCount();
+                this.noteStep = 0;
+                this.syncLabels();
+                if (this.isPlaying) this.start();
+            },
+
+            prev() {
+                this.trackIdx = (this.trackIdx - 1 + this.trackCount()) % this.trackCount();
+                this.noteStep = 0;
+                this.syncLabels();
+                if (this.isPlaying) this.start();
+            },
+
+            selectTrack(index) {
+                this.trackIdx = index % this.trackCount();
+                this.noteStep = 0;
+                this.start();
+            },
+
+            loadLocalFiles(fileList) {
+                if (!fileList || fileList.length === 0) return;
+                const items = Array.from(fileList).slice(0, 3).map((file) => ({
+                    title: file.name.replace(/\.[^/.]+$/, ''),
+                    url: URL.createObjectURL(file)
+                }));
+                if (items.length > 0) {
+                    this.localTracks = items;
+                    this.trackIdx = 0;
+                    this.noteStep = 0;
+                    this.start();
+                    showToast('🎵 MP3 Lokal Dimuat', `${items.length} lagu siap diputar berulang.`);
+                }
+            }
+        };
+
+        // =====================================================================
+        // FIVE CITIES DATA & GAME STATE
+        // =====================================================================
+        const CITIES_DATA = [
+            {
+                id: 'edinburgh',
+                name: 'Edinburgh',
+                desc: 'Kastil menara batu klasik & jalur sky-tram dataran tinggi',
+                sky: 0x6b7f96,
+                ground: 0x5c534a,
+                accent: 0x7c5840,
+                rideName: 'Wahana Sky-Tram Kastil',
+                rideInfo: 'Meluncur menikmati puncak menara kastil Edinburgh bersama Adek di samping.'
+            },
+            {
+                id: 'london',
+                name: 'London',
+                desc: 'Menara jam Big Ben, bus merah & kapsul observasi kota',
+                sky: 0x6e88a3,
+                ground: 0x4c4844,
+                accent: 0xb8332a,
+                rideName: 'Wahana Kapsul Observasi London',
+                rideInfo: 'Berputar pelan di atas cakrawala London bersama Adek di samping.'
+            },
+            {
+                id: 'amsterdam',
+                name: 'Amsterdam',
+                desc: 'Kanal air, rumah kanal & Kincir Angin Wahana pasar malam',
+                sky: 0x7699b8,
+                ground: 0x526953,
+                accent: 0xc97a2b,
+                rideName: 'Kincir Angin Wahana',
+                rideInfo: 'Wahana kincir angin berputar bergaya pasar malam di Belanda — naik bersama Adek di samping!'
+            },
+            {
+                id: 'perancis',
+                name: 'Perancis',
+                desc: 'Menara besi ikonik Paris & wahana balon udara hangat',
+                sky: 0x829ab1,
+                ground: 0x695d51,
+                accent: 0xb88b58,
+                rideName: 'Wahana Balon Udara Perancis',
+                rideInfo: 'Mengudara santai memandangi kota Perancis bersama Adek di samping.'
+            },
+            {
+                id: 'manchester',
+                name: 'Manchester',
+                desc: 'Stadion bola lengkap & sky-gondola panorama kota',
+                sky: 0x647d96,
+                ground: 0x475748,
+                accent: 0x992525,
+                rideName: 'Wahana Sky-Gondola Manchester',
+                rideInfo: 'Melintas di atas area stadion Manchester bersama Adek di samping.'
+            }
+        ];
+
+        const GameState = {
+            playing: false,
+            playerName: 'Abang',
+            gender: 'Cowok',
+            shirtColor: '#A98265',
+            cityIndex: 0,
+            saldo: 250000,
+            energi: 100,
+            isNight: false,
+            povMode: false,
+            lookSensitivity: 1.0,
+            touchBarVisible: true,
+            photoMode: false,
+            photoPoseIndex: 0,
+            photos: [],
+            insideBuilding: null,
+            acEnabled: true,
+            ridingMode: null, // null | 'ojol' | 'car' | 'bus' | 'boat' | 'plane' | 'city_ride'
+            heldProp: null,   // null | 'sushi' | 'teazzi' | 'boost'
+            heldPropTimer: 0,
+            adek: {
+                following: true,
+                holdingHand: false,
+                mood: 95
+            },
+            bag: {
+                sushi: 2,
+                teazzi: 2,
+                boost: 2
+            }
+        };
+
+        const PHOTO_POSES = [
+            { label: 'Senyum Manis', armLift: -0.25, headTilt: 0.06, bounce: 0.08 },
+            { label: 'Melambai Ceria', armLift: -1.1, headTilt: -0.07, bounce: 0.16 },
+            { label: 'Pose Tenang', armLift: 0.18, headTilt: 0.1, bounce: 0.04 }
+        ];
+
+        // =====================================================================
+        // START SCREEN HANDLERS
+        // =====================================================================
+        function selectStartGender(g) {
+            GameState.gender = g;
+            const bCowok = document.getElementById('start-gender-cowok');
+            const bCewek = document.getElementById('start-gender-cewek');
+            if (!bCowok || !bCewek) return;
+            if (g === 'Cowok') {
+                bCowok.className = 'py-2.5 px-3 rounded-xl text-xs font-extrabold border border-[#D8C3A5]/45 bg-[#A98265] text-[#F5EFE5] cursor-pointer';
+                bCewek.className = 'py-2.5 px-3 rounded-xl text-xs font-extrabold border border-[#D8C3A5]/25 bg-[#2A1C16]/75 text-[#D8C3A5] cursor-pointer';
+            } else {
+                bCewek.className = 'py-2.5 px-3 rounded-xl text-xs font-extrabold border border-[#D8C3A5]/45 bg-[#A98265] text-[#F5EFE5] cursor-pointer';
+                bCowok.className = 'py-2.5 px-3 rounded-xl text-xs font-extrabold border border-[#D8C3A5]/25 bg-[#2A1C16]/75 text-[#D8C3A5] cursor-pointer';
+            }
+        }
+
+        function pickShirtColor(hex) {
+            GameState.shirtColor = hex;
+            const picker = document.getElementById('start-shirt-color');
+            if (picker) picker.value = hex;
+            if (typeof playerCharacter !== 'undefined' && playerCharacter) {
+                playerCharacter.applyOutfit(GameState.gender, hex);
+            }
+        }
+
+        function startGameSession() {
+            const nameInput = document.getElementById('start-name-input');
+            const colorInput = document.getElementById('start-shirt-color');
+            if (nameInput && nameInput.value.trim()) {
+                GameState.playerName = nameInput.value.trim();
+            }
+            if (colorInput && colorInput.value) {
+                GameState.shirtColor = colorInput.value;
+            }
+            playerCharacter.applyOutfit(GameState.gender, GameState.shirtColor);
+
+            GameState.playing = true;
+            document.getElementById('start-screen').classList.add('hidden');
+            const hud = document.getElementById('game-hud');
+            hud.classList.remove('hidden');
+            hud.classList.add('flex');
+
+            applyTouchBarState();
+            refreshHud();
+            musicEngine.start();
+            showToast(`Halo, ${GameState.playerName}!`, 'Adek berjilbab coklat & baju cream siap di sampingmu di 5 kota.');
+        }
+
+        // =====================================================================
+        // THREE.JS INITIALIZATION WITH SAFE FALLBACK
+        // =====================================================================
+        const canvas = document.getElementById('game-canvas');
+        const hasThree = typeof window.THREE !== 'undefined' && typeof window.THREE.WebGLRenderer === 'function';
+
+        let renderer = null;
+        let scene = null;
+        let camera = null;
+        let sunLight = null;
+        let cityWorldGroup = null;
+        let interiorWorldGroup = null;
+        let playerCharacter = null;
+        let adekCharacter = null;
+
+        let wallBoxes = [];
+        let interactionPoints = [];
+        let cityVehicles = [];
+        let townNpcs = [];
+        let spinners = [];
+        let cityRideObject = null;
+        let acCoolPanel = null;
+        let acBreezeGroup = null;
+
+        // Player state vector when Three.js is active or fallback mode is used
+        const fallbackActor = { x: 0, y: 0, z: 14, yaw: 0 };
+
+        function ensureCharactersHealthyAndVisible() {
+            if (!playerCharacter || !adekCharacter) return;
+            if (!hasThree || !scene) return;
+
+            if (!playerCharacter.root || playerCharacter.root.children.length === 0) {
+                const rebuiltPlayer = createCharacterRig(false);
+                rebuiltPlayer.applyOutfit(GameState.gender, GameState.shirtColor);
+                playerCharacter = rebuiltPlayer;
+            }
+            if (!adekCharacter.root || adekCharacter.root.children.length === 0) {
+                const rebuiltAdek = createCharacterRig(true);
+                rebuiltAdek.applyOutfit('Cewek', '#F5EFE5');
+                adekCharacter = rebuiltAdek;
+            }
+
+            if (playerCharacter.root.parent !== scene) {
+                scene.add(playerCharacter.root);
+            }
+            if (adekCharacter.root.parent !== scene) {
+                scene.add(adekCharacter.root);
+            }
+
+            playerCharacter.root.visible = true;
+            if (GameState.insideBuilding) {
+                adekCharacter.root.visible = false;
+            } else {
+                adekCharacter.root.visible = GameState.photoMode ? true : Boolean(GameState.adek.following);
+            }
+
+            if (!Number.isFinite(playerCharacter.root.position.x) || !Number.isFinite(playerCharacter.root.position.z)) {
+                playerCharacter.root.position.set(fallbackActor.x, fallbackActor.y, fallbackActor.z);
+            }
+            if (!Number.isFinite(adekCharacter.root.position.x) || !Number.isFinite(adekCharacter.root.position.z)) {
+                const rightVec = getRightVectorFromYaw(fallbackActor.yaw);
+                adekCharacter.root.position.set(
+                    fallbackActor.x + rightVec.x * 1.15,
+                    fallbackActor.y,
+                    fallbackActor.z + rightVec.z * 1.15
+                );
+            }
+        }
+
+        function createCharacterRig(isAdek = false) {
+            if (!hasThree) {
+                return {
+                    root: { position: { x: 0, y: 0, z: 14, set(x, y, z) { this.x = x; this.y = y; this.z = z; } }, rotation: { x: 0, y: 0, z: 0, set(x, y, z) { this.x = x; this.y = y; this.z = z; } }, visible: true, lookAt() {} },
+                    headGroup: { rotation: { x: 0, y: 0, z: 0 } },
+                    leftArm: { rotation: { x: 0, y: 0, z: 0 } },
+                    rightArm: { rotation: { x: 0, y: 0, z: 0 } },
+                    leftLeg: { rotation: { x: 0, y: 0, z: 0 } },
+                    rightLeg: { rotation: { x: 0, y: 0, z: 0 } },
+                    propHolder: { children: [], add() {}, remove() {} },
+                    applyOutfit() {}
+                };
+            }
+
+            const root = new THREE.Group();
+            const s = isAdek ? 0.92 : 1.0;
+
+            const topMat = new THREE.MeshStandardMaterial({
+                color: isAdek ? '#F5EFE5' : GameState.shirtColor,
+                roughness: 0.72
+            });
+            const bottomMat = new THREE.MeshStandardMaterial({
+                color: isAdek ? '#EADBC8' : 0x3b2922,
+                roughness: 0.78
+            });
+            const skinMat = new THREE.MeshStandardMaterial({
+                color: 0xf1c29b,
+                roughness: 0.65
+            });
+
+            const torso = new THREE.Mesh(new THREE.BoxGeometry(0.62 * s, 0.78 * s, 0.36 * s), topMat);
+            torso.position.y = 1.14 * s;
+            torso.castShadow = true;
+            root.add(torso);
+
+            const headGroup = new THREE.Group();
+            headGroup.position.y = 1.82 * s;
+
+            const face = new THREE.Mesh(new THREE.SphereGeometry(0.27 * s, 16, 16), skinMat);
+            face.castShadow = true;
+            headGroup.add(face);
+
+            if (isAdek) {
+                // Brown Hijab (#6E472B) & Cream Outfit (#F5EFE5)
+                const hijabMat = new THREE.MeshStandardMaterial({ color: 0x6e472b, roughness: 0.75 });
+                const hijabCap = new THREE.Mesh(new THREE.SphereGeometry(0.325 * s, 18, 18), hijabMat);
+                hijabCap.position.set(0, 0.03 * s, -0.02 * s);
+                hijabCap.scale.set(1.05, 1.05, 1.12);
+                hijabCap.castShadow = true;
+
+                const hijabDrape = new THREE.Mesh(new THREE.CylinderGeometry(0.24 * s, 0.43 * s, 0.44 * s, 16), hijabMat);
+                hijabDrape.position.set(0, -0.24 * s, -0.02 * s);
+                hijabDrape.castShadow = true;
+                headGroup.add(hijabCap, hijabDrape);
+
+                const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.31 * s, 0.43 * s, 0.56 * s, 14), bottomMat);
+                skirt.position.y = 0.58 * s;
+                skirt.castShadow = true;
+                root.add(skirt);
+            } else {
+                const hair = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.295 * s, 14, 14),
+                    new THREE.MeshStandardMaterial({ color: 0x2a1c16, roughness: 0.8 })
+                );
+                hair.position.set(0, 0.06 * s, -0.04 * s);
+                headGroup.add(hair);
+            }
+
+            root.add(headGroup);
+
+            const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.18 * s, 0.7 * s, 0.18 * s), topMat);
+            leftArm.position.set(-0.42 * s, 1.15 * s, 0);
+            leftArm.castShadow = true;
+            root.add(leftArm);
+
+            const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.18 * s, 0.7 * s, 0.18 * s), topMat);
+            rightArm.position.set(0.42 * s, 1.15 * s, 0);
+            rightArm.castShadow = true;
+            root.add(rightArm);
+
+            const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.21 * s, 0.72 * s, 0.21 * s), bottomMat);
+            leftLeg.position.set(-0.17 * s, 0.36 * s, 0);
+            leftLeg.castShadow = true;
+            root.add(leftLeg);
+
+            const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.21 * s, 0.72 * s, 0.21 * s), bottomMat);
+            rightLeg.position.set(0.17 * s, 0.36 * s, 0);
+            rightLeg.castShadow = true;
+            root.add(rightLeg);
+
+            const propHolder = new THREE.Group();
+            propHolder.position.set(0.45 * s, 1.05 * s, 0.32 * s);
+            root.add(propHolder);
+
+            return {
+                root,
+                headGroup,
+                leftArm,
+                rightArm,
+                leftLeg,
+                rightLeg,
+                propHolder,
+                applyOutfit(gender, hex) {
+                    if (isAdek) {
+                        topMat.color.set('#F5EFE5');
+                        bottomMat.color.set('#EADBC8');
+                    } else {
+                        topMat.color.set(hex || '#A98265');
+                        bottomMat.color.set(gender === 'Cewek' ? 0x654638 : 0x3b2922);
+                    }
+                }
+            };
+        }
+
+        if (hasThree) {
+            try {
+                renderer = new THREE.WebGLRenderer({
+                    canvas,
+                    antialias: true,
+                    preserveDrawingBuffer: true
+                });
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+                renderer.shadowMap.enabled = true;
+                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(CITIES_DATA[0].sky);
+                scene.fog = new THREE.FogExp2(CITIES_DATA[0].sky, 0.0072);
+
+                camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.15, 260);
+
+                const hemiLight = new THREE.HemisphereLight(0xfff5e4, 0x4a3930, 0.95);
+                scene.add(hemiLight);
+
+                sunLight = new THREE.DirectionalLight(0xfff1d6, 1.25);
+                sunLight.position.set(26, 44, 22);
+                sunLight.castShadow = true;
+                sunLight.shadow.mapSize.width = 1024;
+                sunLight.shadow.mapSize.height = 1024;
+                scene.add(sunLight);
+
+                cityWorldGroup = new THREE.Group();
+                interiorWorldGroup = new THREE.Group();
+                interiorWorldGroup.visible = false;
+                scene.add(cityWorldGroup, interiorWorldGroup);
+
+                playerCharacter = createCharacterRig(false);
+                playerCharacter.root.position.set(0, 0, 14);
+                scene.add(playerCharacter.root);
+
+                adekCharacter = createCharacterRig(true);
+                adekCharacter.root.position.set(1.15, 0, 14);
+                scene.add(adekCharacter.root);
+            } catch (err) {
+                renderer = null;
+            }
+        }
+
+        if (!renderer) {
+            playerCharacter = createCharacterRig(false);
+            adekCharacter = createCharacterRig(true);
+        }
+
+        function handleResize() {
+            const w = window.innerWidth || 800;
+            const h = window.innerHeight || 600;
+            if (renderer && camera) {
+                renderer.setSize(w, h, false);
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+            } else {
+                canvas.width = w;
+                canvas.height = h;
+            }
+        }
+        handleResize();
+        window.addEventListener('resize', handleResize);
+
+        // =====================================================================
+        // RIGHT-HAND LATERAL OFFSET HELPER (ADEK ALWAYS BESIDE ABANG)
+        // right = normalize(cross(forward, up))
+        // =====================================================================
+        function getRightVectorFromYaw(yaw) {
+            // Forward vector in XZ plane is (sin(yaw), 0, cos(yaw))
+            // cross(forward, (0, 1, 0)) = (cos(yaw), 0, -sin(yaw))
+            return {
+                x: Math.cos(yaw),
+                z: -Math.sin(yaw)
+            };
+        }
+
+        function getForwardVectorFromYaw(yaw) {
+            return {
+                x: Math.sin(yaw),
+                z: Math.cos(yaw)
+            };
+        }
+
+        function createFoodDrinkProp(kind) {
+            if (!hasThree) return null;
+            const grp = new THREE.Group();
+            if (kind === 'sushi') {
+                const tray = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.05, 0.3), new THREE.MeshStandardMaterial({ color: 0x3b2922 }));
+                const piece1 = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.09, 0.12), new THREE.MeshStandardMaterial({ color: 0xf5efe5 }));
+                piece1.position.set(-0.1, 0.07, 0);
+                const salmon1 = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.04, 0.13), new THREE.MeshStandardMaterial({ color: 0xf97316 }));
+                salmon1.position.set(-0.1, 0.13, 0);
+                const sashimi = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.04, 0.2), new THREE.MeshStandardMaterial({ color: 0xea580c }));
+                sashimi.position.set(0.1, 0.05, 0);
+                grp.add(tray, piece1, salmon1, sashimi);
+            } else if (kind === 'teazzi') {
+                const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.09, 0.27, 12), new THREE.MeshStandardMaterial({ color: 0xd8c3a5 }));
+                const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.04, 12), new THREE.MeshStandardMaterial({ color: 0x654638 }));
+                lid.position.y = 0.15;
+                grp.add(cup, lid);
+            } else if (kind === 'boost') {
+                const bottle = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.29, 12), new THREE.MeshStandardMaterial({ color: 0xd97706 }));
+                const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.06, 12), new THREE.MeshStandardMaterial({ color: 0x3b2922 }));
+                cap.position.y = 0.17;
+                grp.add(bottle, cap);
+            }
+            return grp;
+        }
+
+        function setHeldPropForBoth(kind, seconds = 7) {
+            GameState.heldProp = kind;
+            GameState.heldPropTimer = seconds;
+            if (!hasThree) return;
+            [playerCharacter.propHolder, adekCharacter.propHolder].forEach((holder) => {
+                while (holder.children.length > 0) holder.remove(holder.children[0]);
+                if (kind) {
+                    const p = createFoodDrinkProp(kind);
+                    if (p) holder.add(p);
+                }
+            });
+        }
+
+        // =====================================================================
+        // WORLD BUILDER: 5 CITIES, WALL SLIDING, CITY RIDES, VEHICLES & NPCS
+        // =====================================================================
+        function resetCityWorld() {
+            if (hasThree && cityWorldGroup) {
+                while (cityWorldGroup.children.length > 0) {
+                    cityWorldGroup.remove(cityWorldGroup.children[0]);
+                }
+            }
+            wallBoxes = [];
+            interactionPoints = [];
+            cityVehicles = [];
+            townNpcs = [];
+            spinners = [];
+            cityRideObject = null;
+        }
+
+        function slideMovePosition(targetX, targetZ, radius = 0.65) {
+            const bound = 44;
+            let x = Math.max(-bound, Math.min(bound, targetX));
+            let z = Math.max(-bound, Math.min(bound, targetZ));
+
+            for (const box of wallBoxes) {
+                const nearX = Math.max(box.minX, Math.min(x, box.maxX));
+                const nearZ = Math.max(box.minZ, Math.min(z, box.maxZ));
+                const dx = x - nearX;
+                const dz = z - nearZ;
+                const d2 = dx * dx + dz * dz;
+                if (d2 < radius * radius) {
+                    const dist = Math.sqrt(d2) || 0.001;
+                    const push = radius - dist;
+                    x += (dx / dist) * push;
+                    z += (dz / dist) * push;
+                }
+            }
+            return { x, z };
+        }
+
+        function addEnterableBuilding({ id, title, x, z, w, d, h, wallHex, roofHex }) {
+            if (hasThree && cityWorldGroup) {
+                const bGroup = new THREE.Group();
+                bGroup.position.set(x, 0, z);
+
+                const wallMat = new THREE.MeshStandardMaterial({ color: wallHex, roughness: 0.78 });
+                const roofMat = new THREE.MeshStandardMaterial({ color: roofHex, roughness: 0.72 });
+                const doorMat = new THREE.MeshStandardMaterial({ color: 0x3b2922, roughness: 0.65 });
+                const windowMat = new THREE.MeshStandardMaterial({
+                    color: 0xfde68a,
+                    emissive: 0x78350f,
+                    emissiveIntensity: 0.35
+                });
+
+                const doorWidth = 2.0;
+                const sideSpan = Math.max(1.2, (w - doorWidth) / 2);
+
+                const fLeft = new THREE.Mesh(new THREE.BoxGeometry(sideSpan, h, 0.5), wallMat);
+                fLeft.position.set(-(doorWidth / 2 + sideSpan / 2), h / 2, d / 2);
+                fLeft.castShadow = true;
+
+                const fRight = new THREE.Mesh(new THREE.BoxGeometry(sideSpan, h, 0.5), wallMat);
+                fRight.position.set(doorWidth / 2 + sideSpan / 2, h / 2, d / 2);
+                fRight.castShadow = true;
+
+                const topH = Math.max(1.0, h - 3.0);
+                const fTop = new THREE.Mesh(new THREE.BoxGeometry(doorWidth, topH, 0.5), wallMat);
+                fTop.position.set(0, 3.0 + topH / 2, d / 2);
+
+                const backWall = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.5), wallMat);
+                backWall.position.set(0, h / 2, -d / 2);
+                backWall.castShadow = true;
+
+                const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.5, h, d), wallMat);
+                leftWall.position.set(-w / 2, h / 2, 0);
+                leftWall.castShadow = true;
+
+                const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.5, h, d), wallMat);
+                rightWall.position.set(w / 2, h / 2, 0);
+                rightWall.castShadow = true;
+
+                const roof = new THREE.Mesh(new THREE.BoxGeometry(w + 0.6, 0.5, d + 0.6), roofMat);
+                roof.position.set(0, h + 0.25, 0);
+                roof.castShadow = true;
+
+                const doorMesh = new THREE.Mesh(new THREE.BoxGeometry(doorWidth - 0.2, 2.8, 0.2), doorMat);
+                doorMesh.position.set(0, 1.4, d / 2 + 0.05);
+
+                const winA = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.2, 0.16), windowMat);
+                winA.position.set(-w / 2 - 0.1, h * 0.55, 0);
+                const winB = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.2, 0.16), windowMat);
+                winB.position.set(w / 2 + 0.1, h * 0.55, 0);
+
+                bGroup.add(fLeft, fRight, fTop, backWall, leftWall, rightWall, roof, doorMesh, winA, winB);
+                cityWorldGroup.add(bGroup);
+            }
+
+            wallBoxes.push(
+                { minX: x - w / 2 - 0.3, maxX: x - 1.0, minZ: z + d / 2 - 0.35, maxZ: z + d / 2 + 0.35 },
+                { minX: x + 1.0, maxX: x + w / 2 + 0.3, minZ: z + d / 2 - 0.35, maxZ: z + d / 2 + 0.35 },
+                { minX: x - w / 2 - 0.3, maxX: x + w / 2 + 0.3, minZ: z - d / 2 - 0.35, maxZ: z - d / 2 + 0.35 },
+                { minX: x - w / 2 - 0.35, maxX: x - w / 2 + 0.35, minZ: z - d / 2, maxZ: z + d / 2 },
+                { minX: x + w / 2 - 0.35, maxX: x + w / 2 + 0.35, minZ: z - d / 2, maxZ: z + d / 2 }
+            );
+
+            const doorX = x;
+            const doorZ = z + d / 2 + 1.4;
+            interactionPoints.push({
+                x: doorX,
+                z: doorZ,
+                radius: 2.9,
+                label: `Masuk ${title}`,
+                action: () => enterInteriorRoom(id, title, doorX, doorZ + 1.2)
+            });
+        }
+
+        function addTree(x, z) {
+            if (!hasThree || !cityWorldGroup) return;
+            const tGroup = new THREE.Group();
+            tGroup.position.set(x, 0, z);
+            const trunk = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.22, 0.3, 1.8, 8),
+                new THREE.MeshStandardMaterial({ color: 0x4a3525, roughness: 0.9 })
+            );
+            trunk.position.y = 0.9;
+            trunk.castShadow = true;
+            const crown = new THREE.Mesh(
+                new THREE.DodecahedronGeometry(1.35, 0),
+                new THREE.MeshStandardMaterial({ color: 0x4e6e46, roughness: 0.8 })
+            );
+            crown.position.y = 2.4;
+            crown.castShadow = true;
+            tGroup.add(trunk, crown);
+            cityWorldGroup.add(tGroup);
+            wallBoxes.push({ minX: x - 0.5, maxX: x + 0.5, minZ: z - 0.5, maxZ: z + 0.5 });
+        }
+
+        function addVehicle(kind, label, x, z, colorHex, speed) {
+            const vGroup = hasThree ? new THREE.Group() : { position: { x, y: 0, z }, rotation: { y: 0 } };
+            if (hasThree && cityWorldGroup) {
+                vGroup.position.set(x, 0, z);
+                const bodyMat = new THREE.MeshStandardMaterial({ color: colorHex, roughness: 0.55 });
+                const tireMat = new THREE.MeshStandardMaterial({ color: 0x221a16, roughness: 0.85 });
+
+                if (kind === 'ojol') {
+                    const chassis = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.56, 1.55), bodyMat);
+                    chassis.position.y = 0.65;
+                    chassis.castShadow = true;
+                    const handlebar = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.08, 0.1), tireMat);
+                    handlebar.position.set(0, 1.05, 0.45);
+                    vGroup.add(chassis, handlebar);
+                } else {
+                    const bw = kind === 'bus' ? 2.4 : 2.0;
+                    const bh = kind === 'bus' ? 2.6 : 1.15;
+                    const bd = kind === 'bus' ? 5.6 : 3.8;
+                    const hull = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, bd), bodyMat);
+                    hull.position.y = bh / 2 + 0.35;
+                    hull.castShadow = true;
+                    vGroup.add(hull);
+
+                    if (kind === 'plane') {
+                        const wings = new THREE.Mesh(
+                            new THREE.BoxGeometry(8.6, 0.18, 1.6),
+                            new THREE.MeshStandardMaterial({ color: 0xf5efe5, roughness: 0.5 })
+                        );
+                        wings.position.set(0, 1.0, 0.2);
+                        vGroup.add(wings);
+                    }
+
+                    [
+                        [-bw / 2, 0.35, bd * 0.32],
+                        [bw / 2, 0.35, bd * 0.32],
+                        [-bw / 2, 0.35, -bd * 0.32],
+                        [bw / 2, 0.35, -bd * 0.32]
+                    ].forEach(([wx, wy, wz]) => {
+                        const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.24, 12), tireMat);
+                        wheel.rotation.z = Math.PI / 2;
+                        wheel.position.set(wx, wy, wz);
+                        vGroup.add(wheel);
+                    });
+                }
+                cityWorldGroup.add(vGroup);
+            }
+
+            const entry = { kind, label, colorHex, mesh: vGroup, speed, yaw: 0 };
+            cityVehicles.push(entry);
+
+            interactionPoints.push({
+                x,
+                z,
+                radius: 3.2,
+                get label() {
+                    return GameState.ridingMode === kind ? `Turun dari ${label}` : `Naik ${label} (Adek di samping)`;
+                },
+                action: () => toggleVehicleRide(entry)
+            });
+        }
+
+        function buildCity(idx) {
+            resetCityWorld();
+            const city = CITIES_DATA[idx] || CITIES_DATA[0];
+
+            if (hasThree && scene) {
+                scene.background = new THREE.Color(city.sky);
+                scene.fog = new THREE.FogExp2(city.sky, 0.0072);
+
+                const ground = new THREE.Mesh(
+                    new THREE.PlaneGeometry(110, 110),
+                    new THREE.MeshStandardMaterial({ color: city.ground, roughness: 0.88 })
+                );
+                ground.rotation.x = -Math.PI / 2;
+                ground.receiveShadow = true;
+                cityWorldGroup.add(ground);
+
+                const road = new THREE.Mesh(
+                    new THREE.PlaneGeometry(96, 8),
+                    new THREE.MeshStandardMaterial({ color: 0x3b2922, roughness: 0.9 })
+                );
+                road.rotation.x = -Math.PI / 2;
+                road.position.set(0, 0.02, 4);
+                cityWorldGroup.add(road);
+
+                // Amsterdam canal accent strip
+                if (city.id === 'amsterdam') {
+                    const canal = new THREE.Mesh(
+                        new THREE.PlaneGeometry(96, 5.5),
+                        new THREE.MeshStandardMaterial({ color: 0x2c6e8a, roughness: 0.25 })
+                    );
+                    canal.rotation.x = -Math.PI / 2;
+                    canal.position.set(0, 0.03, 24);
+                    cityWorldGroup.add(canal);
+                }
+
+                // Crosswalk stripes
+                for (let i = -3; i <= 3; i++) {
+                    const stripe = new THREE.Mesh(
+                        new THREE.PlaneGeometry(0.9, 6.8),
+                        new THREE.MeshStandardMaterial({ color: 0xf5efe5, roughness: 0.7 })
+                    );
+                    stripe.rotation.x = -Math.PI / 2;
+                    stripe.position.set(-10 + i * 1.4, 0.04, 4);
+                    cityWorldGroup.add(stripe);
+                }
+
+                // City Landmark per city
+                const landmark = new THREE.Mesh(
+                    new THREE.BoxGeometry(4.6, 16, 4.6),
+                    new THREE.MeshStandardMaterial({ color: city.accent, roughness: 0.65 })
+                );
+                landmark.position.set(-28, 8, 12);
+                landmark.castShadow = true;
+                cityWorldGroup.add(landmark);
+                wallBoxes.push({ minX: -30.5, maxX: -25.5, minZ: 9.5, maxZ: 14.5 });
+
+                // Trees
+                [[-22, -6], [-11, -7], [4, -7], [18, -7], [30, -6]].forEach(([tx, tz]) => addTree(tx, tz));
+            }
+
+            // Enterable Buildings with Real Interior Displays
+            addEnterableBuilding({
+                id: 'rumah_kita',
+                title: 'Rumah Kita',
+                x: -18, z: -12, w: 9, d: 8, h: 4.5,
+                wallHex: 0xa98265, roofHex: 0x3b2922
+            });
+
+            addEnterableBuilding({
+                id: 'musala',
+                title: "Musala (Al-Qur'an, Sajadah & AC)",
+                x: -4, z: -14, w: 10, d: 9, h: 4.8,
+                wallHex: 0xd8c3a5, roofHex: 0x654638
+            });
+
+            addEnterableBuilding({
+                id: 'supermarket',
+                title: 'Supermarket & Mall',
+                x: 11, z: -13, w: 10, d: 8, h: 4.6,
+                wallHex: 0xcab190, roofHex: 0x4a352b
+            });
+
+            addEnterableBuilding({
+                id: 'kafe',
+                title: 'Kafe & Restoran',
+                x: 24, z: -12, w: 9, d: 8, h: 4.4,
+                wallHex: 0x8c674f, roofHex: 0x3b2922
+            });
+
+            // Interactive Rideable Attraction in Every City (Amsterdam = Kincir Angin Wahana)
+            let rotorObj = null;
+            let gondolaObj = null;
+            let rideGroupObj = null;
+
+            if (hasThree && cityWorldGroup) {
+                const rGroup = new THREE.Group();
+                rGroup.position.set(14, 0, 14);
+                const accentMat = new THREE.MeshStandardMaterial({ color: city.accent, roughness: 0.55 });
+                const cabinMat = new THREE.MeshStandardMaterial({ color: 0xf5efe5, roughness: 0.5 });
+
+                const mast = new THREE.Mesh(new THREE.BoxGeometry(1.6, 7.6, 1.6), accentMat);
+                mast.position.y = 3.8;
+                mast.castShadow = true;
+                rGroup.add(mast);
+
+                const rotor = new THREE.Group();
+                rotor.position.set(0, 6.2, 1.25);
+                const arm1 = new THREE.Mesh(new THREE.BoxGeometry(7.6, 0.25, 0.25), accentMat);
+                const arm2 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 7.6, 0.25), accentMat);
+                rotor.add(arm1, arm2);
+
+                const gondola = new THREE.Group();
+                gondola.position.set(0, -3.5, 0);
+                const seat = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.25, 1.35), cabinMat);
+                const roof = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.14, 1.45), accentMat);
+                roof.position.y = 1.45;
+                gondola.add(seat, roof);
+                rotor.add(gondola);
+                rGroup.add(rotor);
+                cityWorldGroup.add(rGroup);
+
+                rideGroupObj = rGroup;
+                rotorObj = rotor;
+                gondolaObj = gondola;
+                spinners.push({ obj: rotor, speed: 0.72 });
+            }
+
+            cityRideObject = { group: rideGroupObj, rotor: rotorObj, gondola: gondolaObj, city };
+            wallBoxes.push({ minX: 13.1, maxX: 14.9, minZ: 13.1, maxZ: 14.9 });
+
+            interactionPoints.push({
+                x: 14,
+                z: 16.8,
+                radius: 3.4,
+                get label() {
+                    return GameState.ridingMode === 'city_ride'
+                        ? `Turun dari ${city.rideName}`
+                        : `Naik ${city.rideName} (Adek di samping)`;
+                },
+                action: () => toggleCityRide(city)
+            });
+
+            // Vehicles: Ojol, Mobil, Bus, Speedboat, Pesawat
+            addVehicle('ojol', 'Ojol', -2, 12, 0x16a34a, 15);
+            addVehicle('car', 'Mobil', 5, 12, 0xa98265, 17);
+            addVehicle('bus', 'Bus', -12, 16, 0xb91c1c, 13);
+            addVehicle('boat', 'Speedboat', 22, 22, 0xd8c3a5, 16);
+            addVehicle('plane', 'Pesawat', -24, -22, 0xf5efe5, 24);
+
+            // Citizens / NPCs chatting in the city
+            [
+                [-6, 11, 'Warga Kota'],
+                [3, 9, 'Pengunjung'],
+                [18, 9, 'Teman Jalan']
+            ].forEach(([nx, nz, role], i) => {
+                const npcRig = createCharacterRig(false);
+                npcRig.applyOutfit('Cowok', i === 0 ? '#D8C3A5' : '#654638');
+                npcRig.root.position.set(nx, 0, nz);
+                if (hasThree && cityWorldGroup) {
+                    cityWorldGroup.add(npcRig.root);
+                }
+                townNpcs.push({ rig: npcRig, baseX: nx, baseZ: nz, seed: i * 1.6 });
+
+                interactionPoints.push({
+                    x: nx,
+                    z: nz,
+                    radius: 2.6,
+                    label: `Ngobrol dengan ${role}`,
+                    action: () => {
+                        musicEngine.playUiTone(580, 0.08);
+                        showToast(`💬 ${role} (${city.name})`, `Suasana ${city.name} ramah untuk kamu dan Adek!`);
+                    }
+                });
+            });
+
+            fallbackActor.x = 0;
+            fallbackActor.y = 0;
+            fallbackActor.z = 14;
+            fallbackActor.yaw = 0;
+            playerCharacter.root.position.set(0, 0, 14);
+            playerCharacter.root.rotation.set(0, 0, 0);
+            adekCharacter.root.position.set(1.15, 0, 14);
+            adekCharacter.root.rotation.set(0, 0, 0);
+            adekCharacter.root.visible = true;
+            GameState.ridingMode = null;
+        }
+
+        // =====================================================================
+        // ENTERABLE INTERIORS WITH REAL DISPLAYS & MUSALA AC COOL BREEZE
+        // =====================================================================
+        function clearInteriorRoom() {
+            if (hasThree && interiorWorldGroup) {
+                while (interiorWorldGroup.children.length > 0) {
+                    interiorWorldGroup.remove(interiorWorldGroup.children[0]);
+                }
+            }
+            acCoolPanel = null;
+            acBreezeGroup = null;
+        }
+
+        function enterInteriorRoom(roomId, title, exitX, exitZ) {
+            musicEngine.playUiTone(520, 0.08);
+            clearInteriorRoom();
+            GameState.insideBuilding = roomId;
+            GameState.ridingMode = null;
+
+            if (hasThree && cityWorldGroup && interiorWorldGroup) {
+                cityWorldGroup.visible = false;
+                interiorWorldGroup.visible = true;
+
+                const size = 14;
+                const height = 4.6;
+
+                const floor = new THREE.Mesh(
+                    new THREE.PlaneGeometry(size, size),
+                    new THREE.MeshStandardMaterial({ color: 0xd8c3a5, roughness: 0.75 })
+                );
+                floor.rotation.x = -Math.PI / 2;
+                floor.receiveShadow = true;
+                interiorWorldGroup.add(floor);
+
+                const wallMat = new THREE.MeshStandardMaterial({ color: 0xf5efe5, roughness: 0.8 });
+                const wBack = new THREE.Mesh(new THREE.BoxGeometry(size, height, 0.4), wallMat);
+                wBack.position.set(0, height / 2, -size / 2);
+                const wLeft = new THREE.Mesh(new THREE.BoxGeometry(0.4, height, size), wallMat);
+                wLeft.position.set(-size / 2, height / 2, 0);
+                const wRight = new THREE.Mesh(new THREE.BoxGeometry(0.4, height, size), wallMat);
+                wRight.position.set(size / 2, height / 2, 0);
+                const wFront = new THREE.Mesh(new THREE.BoxGeometry(size, height, 0.4), wallMat);
+                wFront.position.set(0, height / 2, size / 2);
+                interiorWorldGroup.add(wBack, wLeft, wRight, wFront);
+
+                if (roomId === 'musala') {
+                    // Mihrab niche on back wall
+                    const mihrab = new THREE.Mesh(
+                        new THREE.BoxGeometry(2.2, 2.8, 0.35),
+                        new THREE.MeshStandardMaterial({ color: 0x654638, roughness: 0.7 })
+                    );
+                    mihrab.position.set(0, 1.4, -6.72);
+                    interiorWorldGroup.add(mihrab);
+
+                    // Sajadah mats
+                    const matStyle = new THREE.MeshStandardMaterial({ color: 0x654638, roughness: 0.7 });
+                    for (let k = -1; k <= 1; k++) {
+                        const sajadah = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.04, 1.9), matStyle);
+                        sajadah.position.set(k * 1.8, 0.03, 0.4);
+                        interiorWorldGroup.add(sajadah);
+                    }
+
+                    // Rehal stand + Open Al-Qur'an display
+                    const rehal = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.72, 0.58), new THREE.MeshStandardMaterial({ color: 0x3b2922 }));
+                    rehal.position.set(0, 0.36, -3.2);
+                    const quran = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.08, 0.44), new THREE.MeshStandardMaterial({ color: 0xfef9c3 }));
+                    quran.position.set(0, 0.76, -3.2);
+                    interiorWorldGroup.add(rehal, quran);
+
+                    // Wall AC Unit + Toggleable Cool Air Breeze Particles
+                    const acBox = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.48, 0.4), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+                    acBox.position.set(3.2, 3.2, -6.62);
+                    interiorWorldGroup.add(acBox);
+
+                    acCoolPanel = new THREE.Mesh(
+                        new THREE.BoxGeometry(1.6, 1.15, 1.1),
+                        new THREE.MeshBasicMaterial({
+                            color: 0xbae6fd,
+                            transparent: true,
+                            opacity: GameState.acEnabled ? 0.24 : 0.0
+                        })
+                    );
+                    acCoolPanel.position.set(3.2, 2.5, -5.8);
+                    interiorWorldGroup.add(acCoolPanel);
+
+                    acBreezeGroup = new THREE.Group();
+                    acBreezeGroup.visible = GameState.acEnabled;
+                    const breezeMat = new THREE.MeshBasicMaterial({ color: 0xe0f2fe, transparent: true, opacity: 0.65 });
+                    for (let p = 0; p < 8; p++) {
+                        const puff = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), breezeMat);
+                        puff.position.set(2.6 + (p % 4) * 0.4, 2.8 - (p % 2) * 0.35, -6.2 + p * 0.32);
+                        acBreezeGroup.add(puff);
+                    }
+                    interiorWorldGroup.add(acBreezeGroup);
+                } else if (roomId === 'rumah_kita') {
+                    // Coffee counter, bed & mirror display
+                    const counter = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.85, 1.1), new THREE.MeshStandardMaterial({ color: 0x654638 }));
+                    counter.position.set(-2.5, 0.425, -3.0);
+                    const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.12, 0.24, 12), new THREE.MeshStandardMaterial({ color: 0xf5efe5 }));
+                    cup.position.set(-2.5, 0.96, -3.0);
+                    const bed = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.5, 2.8), new THREE.MeshStandardMaterial({ color: 0xa98265 }));
+                    bed.position.set(2.8, 0.25, -3.2);
+                    const mirror = new THREE.Mesh(
+                        new THREE.BoxGeometry(1.4, 2.0, 0.12),
+                        new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.7, roughness: 0.15 })
+                    );
+                    mirror.position.set(0, 1.6, -6.7);
+                    interiorWorldGroup.add(counter, cup, bed, mirror);
+                } else if (roomId === 'supermarket') {
+                    // Fruit crates, shoe pedestals & Sushi/Teazzi/Boost shelves
+                    const fruitCrate = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.7, 1.1), new THREE.MeshStandardMaterial({ color: 0xd97706 }));
+                    fruitCrate.position.set(-3.4, 0.35, -3.2);
+                    const shoeDisplay = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.9, 1.0), new THREE.MeshStandardMaterial({ color: 0xa98265 }));
+                    shoeDisplay.position.set(3.4, 0.45, -3.2);
+                    const drinkShelf = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.25, 0.95), new THREE.MeshStandardMaterial({ color: 0x654638 }));
+                    drinkShelf.position.set(0, 0.625, -3.5);
+                    interiorWorldGroup.add(fruitCrate, shoeDisplay, drinkShelf);
+                } else {
+                    // Kafe dining table with sushi & drinks display
+                    const diningTable = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.85, 1.3), new THREE.MeshStandardMaterial({ color: 0x3b2922 }));
+                    diningTable.position.set(0, 0.425, -2.5);
+                    const platter = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.08, 0.55), new THREE.MeshStandardMaterial({ color: 0xf97316 }));
+                    platter.position.set(0, 0.9, -2.5);
+                    interiorWorldGroup.add(diningTable, platter);
+                }
+            }
+
+            fallbackActor.x = 0;
+            fallbackActor.y = 0;
+            fallbackActor.z = 4.5;
+            playerCharacter.root.position.set(0, 0, 4.5);
+            playerCharacter.root.rotation.set(0, 0, 0);
+            adekCharacter.root.visible = false;
+
+            interactionPoints = [
+                {
+                    x: 0,
+                    z: 5.5,
+                    radius: 3.0,
+                    label: `Keluar dari ${title}`,
+                    action: () => exitInteriorRoom(exitX, exitZ)
+                }
+            ];
+
+            if (roomId === 'musala') {
+                interactionPoints.push(
+                    {
+                        x: 0, z: -2.0, radius: 3.2,
+                        label: "📖 Mengaji (Al-Qur'an & Sajadah)",
+                        action: () => {
+                            GameState.energi = Math.min(100, GameState.energi + 15);
+                            refreshHud();
+                            musicEngine.playChime();
+                            showToast("📖 Mengaji di Musala", "Energi bertambah +15%.");
+                        }
+                    },
+                    {
+                        x: 3.2, z: -4.5, radius: 3.5,
+                        get label() {
+                            return GameState.acEnabled ? '❄️ Matikan AC Musala' : '❄️ Nyalakan AC Musala';
+                        },
+                        action: () => {
+                            GameState.acEnabled = !GameState.acEnabled;
+                            if (acCoolPanel) acCoolPanel.material.opacity = GameState.acEnabled ? 0.24 : 0.0;
+                            if (acBreezeGroup) acBreezeGroup.visible = GameState.acEnabled;
+                            musicEngine.playUiTone(620, 0.08);
+                            showToast('❄️ AC Musala', GameState.acEnabled ? 'Angin sejuk AC menyala.' : 'AC dimatikan.');
+                        }
+                    }
+                );
+            } else if (roomId === 'rumah_kita') {
+                interactionPoints.push(
+                    {
+                        x: -2.5, z: -1.5, radius: 3.0,
+                        label: '☕ Bikin Kopi',
+                        action: () => {
+                            GameState.energi = Math.min(100, GameState.energi + 20);
+                            refreshHud();
+                            musicEngine.playChime();
+                            showToast('☕ Kopi Hangat', 'Energi bertambah +20%.');
+                        }
+                    },
+                    {
+                        x: 2.8, z: -1.5, radius: 3.0,
+                        label: '🛏️ Istirahat / Ganti Siang-Malam',
+                        action: () => {
+                            GameState.isNight = !GameState.isNight;
+                            GameState.energi = 100;
+                            if (sunLight) sunLight.intensity = GameState.isNight ? 0.45 : 1.25;
+                            refreshHud();
+                            musicEngine.playChime();
+                            showToast('🛏️ Energi Penuh', `Energi 100% • Waktu: ${GameState.isNight ? 'Malam' : 'Siang'}.`);
+                        }
+                    },
+                    {
+                        x: 0, z: -4.8, radius: 3.0,
+                        label: '🪞 Berkaca (Ganti Gender / Warna Baju)',
+                        action: () => openMirrorModal()
+                    }
+                );
+            } else if (roomId === 'supermarket') {
+                interactionPoints.push({
+                    x: 0, z: -1.5, radius: 3.6,
+                    label: '🛒 Beli Sushi Salmon Sashimi, Teazzi & Boost Juice',
+                    action: () => openMarketModal()
+                });
+            } else if (roomId === 'kafe') {
+                interactionPoints.push({
+                    x: 0, z: -1.0, radius: 3.4,
+                    label: '🍣 Makan & Minum Bersama Adek',
+                    action: () => openAdekModal()
+                });
+            }
+
+            showToast(`🚪 Masuk ${title}`, 'Gunakan WASD untuk bergerak dan [E] untuk berinteraksi.');
+        }
+
+        function exitInteriorRoom(exitX, exitZ) {
+            musicEngine.playUiTone(480, 0.08);
+            GameState.insideBuilding = null;
+            if (hasThree && interiorWorldGroup && cityWorldGroup) {
+                interiorWorldGroup.visible = false;
+                cityWorldGroup.visible = true;
+            }
+            buildCity(GameState.cityIndex);
+            const pos = slideMovePosition(exitX, exitZ, 0.65);
+            const rightVec = getRightVectorFromYaw(0);
+            fallbackActor.x = pos.x;
+            fallbackActor.y = 0;
+            fallbackActor.z = pos.z;
+            playerCharacter.root.position.set(pos.x, 0, pos.z);
+            adekCharacter.root.position.set(pos.x + rightVec.x * 1.15, 0, pos.z + rightVec.z * 1.15);
+            adekCharacter.root.visible = true;
+            showToast('🚪 Keluar Bangunan', 'Kamu kembali ke kota bersama Adek di samping.');
+        }
+
+        // =====================================================================
+        // RIDES & VEHICLES (ADEK ALWAYS BESIDE ABANG)
+        // =====================================================================
+        function toggleVehicleRide(vEntry) {
+            musicEngine.playUiTone(540, 0.08);
+            const vx = vEntry.mesh.position.x;
+            const vz = vEntry.mesh.position.z;
+            const rightVec = getRightVectorFromYaw(vEntry.yaw);
+
+            if (GameState.ridingMode === vEntry.kind) {
+                GameState.ridingMode = null;
+                const dropX = vx;
+                const dropZ = vz + 2.2;
+                fallbackActor.x = dropX;
+                fallbackActor.y = 0;
+                fallbackActor.z = dropZ;
+                playerCharacter.root.position.set(dropX, 0, dropZ);
+                adekCharacter.root.position.set(dropX + rightVec.x * 1.15, 0, dropZ + rightVec.z * 1.15);
+                adekCharacter.root.visible = true;
+                refreshHud();
+                showToast(`Turun dari ${vEntry.label}`, 'Kamu & Adek turun dengan aman.');
+            } else {
+                GameState.ridingMode = vEntry.kind;
+                GameState.adek.following = true;
+                adekCharacter.root.visible = true;
+                refreshHud();
+                showToast(`Naik ${vEntry.label}`, 'Adek duduk di sampingmu! Tekan [E] untuk turun.');
+            }
+        }
+
+        function toggleCityRide(city) {
+            musicEngine.playUiTone(560, 0.08);
+            if (GameState.ridingMode === 'city_ride') {
+                GameState.ridingMode = null;
+                fallbackActor.x = 14;
+                fallbackActor.y = 0;
+                fallbackActor.z = 17.2;
+                playerCharacter.root.position.set(14, 0, 17.2);
+                adekCharacter.root.position.set(15.15, 0, 17.2);
+                adekCharacter.root.visible = true;
+                refreshHud();
+                showToast(`Turun dari ${city.rideName}`, 'Wahana selesai dinikmati bersama Adek.');
+            } else {
+                GameState.ridingMode = 'city_ride';
+                GameState.adek.following = true;
+                adekCharacter.root.visible = true;
+                refreshHud();
+                showToast(`Naik ${city.rideName}`, `${city.rideInfo} Tekan [E] untuk turun.`);
+            }
+        }
+
+        // =====================================================================
+        // REAL PHOTO CAPTURE ("FOTOIN ADEK") + GALLERY + PNG DOWNLOAD
+        // =====================================================================
+        function cyclePhotoPose() {
+            musicEngine.playUiTone(600, 0.07);
+            GameState.photoPoseIndex = (GameState.photoPoseIndex + 1) % PHOTO_POSES.length;
+            const lbl = document.getElementById('photo-pose-label');
+            if (lbl) lbl.textContent = PHOTO_POSES[GameState.photoPoseIndex].label;
+        }
+
+        function enterPhotoMode() {
+            if (!GameState.playing) return;
+            if (GameState.insideBuilding) {
+                showToast('Keluar Bangunan Dulu', 'Fotoin Adek paling pas di area kota atau wahana.');
+                return;
+            }
+            musicEngine.playUiTone(620, 0.08);
+            GameState.photoMode = true;
+            GameState.adek.following = true;
+            adekCharacter.root.visible = true;
+
+            const fwd = getForwardVectorFromYaw(cameraYaw);
+            const spot = slideMovePosition(
+                fallbackActor.x + fwd.x * 2.8,
+                fallbackActor.z + fwd.z * 2.8,
+                0.55
+            );
+            adekCharacter.root.position.set(spot.x, 0, spot.z);
+
+            document.getElementById('game-hud').classList.add('hidden');
+            document.getElementById('game-hud').classList.remove('flex');
+            const vf = document.getElementById('photo-viewfinder');
+            vf.classList.remove('hidden');
+            vf.classList.add('flex');
+
+            const lbl = document.getElementById('photo-pose-label');
+            if (lbl) lbl.textContent = PHOTO_POSES[GameState.photoPoseIndex].label;
+            const cnt = document.getElementById('viewfinder-photo-count');
+            if (cnt) cnt.textContent = String(GameState.photos.length);
+        }
+
+        function exitPhotoMode() {
+            musicEngine.playUiTone(460, 0.07);
+            GameState.photoMode = false;
+            adekCharacter.headGroup.rotation.z = 0;
+            adekCharacter.rightArm.rotation.x = 0;
+            adekCharacter.root.position.y = 0;
+
+            const vf = document.getElementById('photo-viewfinder');
+            vf.classList.add('hidden');
+            vf.classList.remove('flex');
+            const hud = document.getElementById('game-hud');
+            hud.classList.remove('hidden');
+            hud.classList.add('flex');
+        }
+
+        function snapAdekPhoto() {
+            if (hasThree && renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+
+            const outCanvas = document.createElement('canvas');
+            const srcW = canvas.width || 960;
+            const srcH = canvas.height || 540;
+            outCanvas.width = Math.min(1280, Math.max(640, srcW));
+            outCanvas.height = Math.min(720, Math.max(360, Math.round((outCanvas.width * srcH) / srcW)));
+
+            const ctx = outCanvas.getContext('2d');
+            if (hasThree && renderer) {
+                ctx.drawImage(canvas, 0, 0, outCanvas.width, outCanvas.height);
+            } else {
+                const grad = ctx.createLinearGradient(0, 0, 0, outCanvas.height);
+                grad.addColorStop(0, '#654638');
+                grad.addColorStop(1, '#3B2922');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, outCanvas.width, outCanvas.height);
+            }
+
+            const city = CITIES_DATA[GameState.cityIndex] || CITIES_DATA[0];
+            const pose = PHOTO_POSES[GameState.photoPoseIndex] || PHOTO_POSES[0];
+            const timeNow = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+            ctx.fillStyle = 'rgba(59, 41, 34, 0.84)';
+            ctx.fillRect(18, outCanvas.height - 74, outCanvas.width - 36, 56);
+            ctx.strokeStyle = 'rgba(245, 239, 229, 0.55)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(18, outCanvas.height - 74, outCanvas.width - 36, 56);
+
+            ctx.fillStyle = '#F5EFE5';
+            ctx.font = 'bold 17px sans-serif';
+            ctx.fillText(`📸 Fotoin Adek • ${city.name} (${pose.label})`, 32, outCanvas.height - 45);
+            ctx.fillStyle = '#D8C3A5';
+            ctx.font = '13px sans-serif';
+            ctx.fillText(`Oleh ${GameState.playerName} • ${timeNow}`, 32, outCanvas.height - 25);
+
+            const dataUrl = outCanvas.toDataURL('image/png');
+            GameState.photos.unshift({
+                id: Date.now(),
+                cityName: city.name,
+                poseLabel: pose.label,
+                timeNow,
+                dataUrl
+            });
+
+            refreshHud();
+            musicEngine.playChime();
+            exitPhotoMode();
+            showToast('📷 Foto Adek Tersimpan!', `Foto di ${city.name} masuk ke Galeri.`);
+            openGalleryModal();
+        }
+
+        function downloadPhotoItem(index) {
+            const photo = GameState.photos[index];
+            if (!photo) return;
+            const a = document.createElement('a');
+            a.href = photo.dataUrl;
+            a.download = `foto-adek-${photo.cityName.toLowerCase()}-${photo.id}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            musicEngine.playUiTone(620, 0.08);
+            showToast('⬇️ Mengunduh PNG', `Foto Adek (${photo.cityName}) diunduh sebagai PNG.`);
+        }
+
+        function openGalleryModal() {
+            musicEngine.playUiTone(540, 0.08);
+            const listHtml = GameState.photos.length === 0
+                ? `<div class="p-6 text-center rounded-2xl bg-[#3B2922]/85 border border-[#D8C3A5]/25 text-xs text-[#D8C3A5]">
+                        Belum ada foto di galeri. Tekan <strong class="text-[#F5EFE5]">📸 Fotoin Adek [P]</strong> untuk memotret Adek.
+                   </div>`
+                : `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                        ${GameState.photos.map((p, idx) => `
+                            <div class="rounded-2xl bg-[#3B2922]/90 border border-[#D8C3A5]/25 overflow-hidden">
+                                <img src="${p.dataUrl}" alt="Foto Adek ${p.cityName}" class="w-full h-40 object-cover" />
+                                <div class="p-3 flex items-center justify-between gap-2 text-xs">
+                                    <div>
+                                        <div class="font-extrabold text-[#F5EFE5]">${p.cityName} • ${p.poseLabel}</div>
+                                        <div class="text-[11px] text-[#D8C3A5]">${p.timeNow}</div>
+                                    </div>
+                                    <button type="button" onclick="downloadPhotoItem(${idx})" class="btn-caramel px-3 py-1.5 rounded-xl text-[11px] font-bold cursor-pointer">
+                                        ⬇️ PNG
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                   </div>`;
+
+            openModalDialog(`
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <h2 class="font-cinzel text-xl sm:text-2xl font-bold text-[#F5EFE5]">🖼️ Galeri Foto Adek</h2>
+                        <p class="text-xs text-[#D8C3A5]">Lihat &amp; unduh foto Adek dalam format PNG</p>
+                    </div>
+                    <button type="button" onclick="closeModalDialog()" class="px-3 py-1 rounded-xl btn-mocha font-bold cursor-pointer">✕</button>
+                </div>
+                ${listHtml}
+                <div class="flex gap-2">
+                    <button type="button" onclick="closeModalDialog();enterPhotoMode();" class="btn-caramel flex-1 py-2.5 rounded-xl text-xs font-extrabold cursor-pointer">
+                        📸 Fotoin Adek Lagi
+                    </button>
+                    <button type="button" onclick="closeModalDialog()" class="btn-mocha px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer">
+                        Tutup
+                    </button>
+                </div>
+            `);
+        }
+
+        // =====================================================================
+        // ADEK MENU, MIRROR, MARKET, BAG, 5 CITIES, MAP, POV MENU & SETTINGS
+        // =====================================================================
+        function openAdekModal() {
+            musicEngine.playUiTone(540, 0.08);
+            openModalDialog(`
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="font-cinzel text-xl sm:text-2xl font-bold text-[#F5EFE5]">🧕🏻 Menu Adek</h2>
+                        <p class="text-xs text-[#D8C3A5]">Jilbab Coklat &amp; Baju Cream (Di Samping) • Mood: <strong class="text-[#F5EFE5]">${GameState.adek.mood}%</strong></p>
+                    </div>
+                    <button type="button" onclick="closeModalDialog()" class="px-3 py-1 rounded-xl btn-mocha font-bold cursor-pointer">✕</button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4">
+                    <button type="button" onclick="toggleAdekFollow()" class="btn-mocha p-3 rounded-xl text-left text-xs font-bold cursor-pointer">
+                        🚶🏻‍♀️ Di Samping Kamu: ${GameState.adek.following ? 'Aktif' : 'Diam'}
+                    </button>
+                    <button type="button" onclick="toggleAdekHandHold()" class="btn-caramel p-3 rounded-xl text-left text-xs font-extrabold cursor-pointer">
+                        🤝 Bergandengan Tangan: ${GameState.adek.holdingHand ? 'Aktif' : 'Lepas'}
+                    </button>
+                    <button type="button" onclick="closeModalDialog();enterPhotoMode();" class="btn-mocha p-3 rounded-xl text-left text-xs font-bold cursor-pointer">
+                        📸 Fotoin Adek [P]
+                    </button>
+                    <button type="button" onclick="closeModalDialog();openCityModal();" class="btn-mocha p-3 rounded-xl text-left text-xs font-bold cursor-pointer">
+                        🎡 5 Kota &amp; Wahana
+                    </button>
+                </div>
+
+                <div class="text-xs font-bold uppercase tracking-wider text-[#D8C3A5] mb-2">Makan &amp; Minum Bersama Adek</div>
+                <div class="space-y-2 text-xs">
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-[#3B2922]/85 border border-[#D8C3A5]/20">
+                        <div>
+                            <div class="font-extrabold text-[#F5EFE5]">🍣 Sushi Salmon Sashimi (Stok: ${GameState.bag.sushi})</div>
+                            <div class="text-[#D8C3A5]">Energi +25 • Mood Adek +15</div>
+                        </div>
+                        <button type="button" onclick="consumeWithAdek('sushi')" class="btn-caramel px-3 py-2 rounded-xl font-extrabold cursor-pointer">Makan Bareng</button>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-[#3B2922]/85 border border-[#D8C3A5]/20">
+                        <div>
+                            <div class="font-extrabold text-[#F5EFE5]">🧋 Teazzi (Stok: ${GameState.bag.teazzi})</div>
+                            <div class="text-[#D8C3A5]">Energi +15 • Mood Adek +12</div>
+                        </div>
+                        <button type="button" onclick="consumeWithAdek('teazzi')" class="btn-caramel px-3 py-2 rounded-xl font-extrabold cursor-pointer">Minum Bareng</button>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-[#3B2922]/85 border border-[#D8C3A5]/20">
+                        <div>
+                            <div class="font-extrabold text-[#F5EFE5]">🧃 Boost Juice (Stok: ${GameState.bag.boost})</div>
+                            <div class="text-[#D8C3A5]">Energi +30 • Mood Adek +10</div>
+                        </div>
+                        <button type="button" onclick="consumeWithAdek('boost')" class="btn-caramel px-3 py-2 rounded-xl font-extrabold cursor-pointer">Minum Bareng</button>
+                    </div>
+                </div>
+            `);
+        }
+
+        function toggleAdekFollow() {
+            GameState.adek.following = !GameState.adek.following;
+            if (GameState.adek.following) adekCharacter.root.visible = true;
+            refreshHud();
+            musicEngine.playUiTone(560, 0.07);
+            openAdekModal();
+        }
+
+        function toggleAdekHandHold() {
+            GameState.adek.following = true;
+            adekCharacter.root.visible = true;
+            GameState.adek.holdingHand = !GameState.adek.holdingHand;
+            refreshHud();
+            musicEngine.playChime();
+            showToast('🤝 Bergandengan Tangan', GameState.adek.holdingHand ? 'Kamu menggandeng tangan Adek di samping.' : 'Gandengan tangan dilepas.');
+            openAdekModal();
+        }
+
+        function consumeWithAdek(itemKey) {
+            if (GameState.bag[itemKey] <= 0) {
+                showToast('Stok Habis', 'Beli item ini di Supermarket & Mall.');
+                return;
+            }
+            GameState.bag[itemKey] -= 1;
+            setHeldPropForBoth(itemKey, 7);
+
+            const info = {
+                sushi: { title: 'Sushi Salmon Sashimi', en: 25, mood: 15 },
+                teazzi: { title: 'Teazzi', en: 15, mood: 12 },
+                boost: { title: 'Boost Juice', en: 30, mood: 10 }
+            }[itemKey];
+
+            GameState.energi = Math.min(100, GameState.energi + info.en);
+            GameState.adek.mood = Math.min(100, GameState.adek.mood + info.mood);
+            refreshHud();
+            musicEngine.playChime();
+            closeModalDialog();
+            showToast(`😋 ${info.title}`, `Kamu & Adek menikmati ${info.title} bersama.`);
+        }
+
+        function openMirrorModal() {
+            musicEngine.playUiTone(540, 0.08);
+            openModalDialog(`
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="font-cinzel text-xl sm:text-2xl font-bold text-[#F5EFE5]">🪞 Berkaca di Rumah Kita</h2>
+                    <button type="button" onclick="closeModalDialog()" class="px-3 py-1 rounded-xl btn-mocha font-bold cursor-pointer">✕</button>
+                </div>
+                <div class="space-y-4 text-xs">
+                    <div>
+                        <div class="font-bold text-[#D8C3A5] mb-1.5">Gender Karakter</div>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="updateLiveOutfit('Cowok', GameState.shirtColor)" class="btn-mocha px-4 py-2 rounded-xl font-bold cursor-pointer">Cowok</button>
+                            <button type="button" onclick="updateLiveOutfit('Cewek', GameState.shirtColor)" class="btn-mocha px-4 py-2 rounded-xl font-bold cursor-pointer">Cewek</button>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="font-bold text-[#D8C3A5] mb-1.5">Warna Baju</div>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="updateLiveOutfit(GameState.gender, '#A98265')" class="px-3 py-2 rounded-xl bg-[#A98265] text-[#F5EFE5] font-bold cursor-pointer">Caramel</button>
+                            <button type="button" onclick="updateLiveOutfit(GameState.gender, '#654638')" class="px-3 py-2 rounded-xl bg-[#654638] text-[#F5EFE5] font-bold cursor-pointer">Mocha</button>
+                            <button type="button" onclick="updateLiveOutfit(GameState.gender, '#3B2922')" class="px-3 py-2 rounded-xl bg-[#3B2922] text-[#F5EFE5] font-bold cursor-pointer">Dark Choc</button>
+                            <button type="button" onclick="updateLiveOutfit(GameState.gender, '#D8C3A5')" class="px-3 py-2 rounded-xl bg-[#D8C3A5] text-[#3B2922] font-bold cursor-pointer">Sand</button>
+                        </div>
+                    </div>
+                </div>
+            `);
+        }
+
+        function updateLiveOutfit(gender, colorHex) {
+            GameState.gender = gender;
+            GameState.shirtColor = colorHex;
+            playerCharacter.applyOutfit(gender, colorHex);
+            refreshHud();
+            musicEngine.playUiTone(600, 0.07);
+            showToast('🪞 Penampilan Diperbarui', `${GameState.playerName} (${gender})`);
+        }
+
+        function openMarketModal() {
+            musicEngine.playUiTone(540, 0.08);
+            const goods = [
+                { key: 'sushi', name: '🍣 Sushi Salmon Sashimi', price: 35000, desc: 'Sushi & salmon sashimi segar' },
+                { key: 'teazzi', name: '🧋 Teazzi', price: 20000, desc: 'Minuman teh segar' },
+                { key: 'boost', name: '🧃 Boost Juice', price: 25000, desc: 'Jus penambah energi' }
+            ];
+            openModalDialog(`
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="font-cinzel text-xl sm:text-2xl font-bold text-[#F5EFE5]">🛒 Supermarket &amp; Mall</h2>
+                        <p class="text-xs text-[#D8C3A5]">Saldo: <strong class="text-[#F5EFE5]">Rp ${GameState.saldo.toLocaleString('id-ID')}</strong></p>
+                    </div>
+                    <button type="button" onclick="closeModalDialog()" class="px-3 py-1 rounded-xl btn-mocha font-bold cursor-pointer">✕</button>
+                </div>
+                <div class="space-y-2.5 text-xs">
+                    ${goods.map((g) => `
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-[#3B2922]/85 border border-[#D8C3A5]/20">
+                            <div>
+                                <div class="font-extrabold text-[#F5EFE5]">${g.name} (Stok: ${GameState.bag[g.key]})</div>
+                                <div class="text-[#D8C3A5]">${g.desc} • Rp ${g.price.toLocaleString('id-ID')}</div>
+                            </div>
+                            <button type="button" onclick="buyMarketGood('${g.key}', ${g.price}, '${g.name}')" class="btn-caramel px-3 py-2 rounded-xl font-extrabold cursor-pointer">Beli</button>
+                        </div>
+                    `).join('')}
+                </div>
+            `);
+        }
+
+        function buyMarketGood(key, price, label) {
+            if (GameState.saldo < price) {
+                showToast('Saldo Tidak Cukup', 'Saldo kamu belum cukup untuk item ini.');
+                return;
+            }
+            GameState.saldo -= price;
+            GameState.bag[key] += 1;
+            refreshHud();
+            musicEngine.playChime();
+            showToast('🛍️ Dibeli', `${label} ditambahkan ke Tas.`);
+            openMarketModal();
+        }
+
+        function openBagModal() {
+            musicEngine.playUiTone(540, 0.08);
+            openModalDialog(`
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="font-cinzel text-xl sm:text-2xl font-bold text-[#F5EFE5]">🎒 Tas</h2>
+                    <button type="button" onclick="closeModalDialog()" class="px-3 py-1 rounded-xl btn-mocha font-bold cursor-pointer">✕</button>
+                </div>
+                <div class="space-y-2.5 text-xs">
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-[#3B2922]/85 border border-[#D8C3A5]/20">
+                        <div>
+                            <div class="font-extrabold text-[#F5EFE5]">🍣 Sushi Salmon Sashimi: ${GameState.bag.sushi}</div>
+                            <div class="text-[#D8C3A5]">Makan bersama Adek</div>
+                        </div>
+                        <button type="button" onclick="consumeWithAdek('sushi')" class="btn-caramel px-3 py-2 rounded-xl font-extrabold cursor-pointer">Pakai</button>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-[#3B2922]/85 border border-[#D8C3A5]/20">
+                        <div>
+                            <div class="font-extrabold text-[#F5EFE5]">🧋 Teazzi: ${GameState.bag.teazzi}</div>
+                            <div class="text-[#D8C3A5]">Minum bersama Adek</div>
+                        </div>
+                        <button type="button" onclick="consumeWithAdek('teazzi')" class="btn-caramel px-3 py-2 rounded-xl font-extrabold cursor-pointer">Pakai</button>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-[#3B2922]/85 border border-[#D8C3A5]/20">
+                        <div>
+                            <div class="font-extrabold text-[#F5EFE5]">🧃 Boost Juice: ${GameState.bag.boost}</div>
+                            <div class="text-[#D8C3A5]">Minum bersama Adek</div>
+                        </div>
+                        <button type="button" onclick="consumeWithAdek('boost')" class="btn-caramel px-3 py-2 rounded-xl font-extrabold cursor-pointer">Pakai</button>
+                    </div>
+                </div>
+            `);
+        }
+
+        function goToCity(idx) {
+            if (idx < 0 || idx >= CITIES_DATA.length) return;
+            GameState.cityIndex = idx;
+            GameState.insideBuilding = null;
+            if (hasThree && interiorWorldGroup && cityWorldGroup) {
+                interiorWorldGroup.visible = false;
+                cityWorldGroup.visible = true;
+            }
+            buildCity(idx);
+            refreshHud();
+            musicEngine.playChime();
+            closeModalDialog();
+            const city = CITIES_DATA[idx];
+            showToast(`✈️ ${city.name}`, `${city.desc} • Wahana: ${city.rideName}`);
+        }
+
+        function openCityModal() {
+            musicEngine.playUiTone(540, 0.08);
+            openModalDialog(`
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="font-cinzel text-xl sm:text-2xl font-bold text-[#F5EFE5]">✈️ 5 Kota &amp; Wahana</h2>
+                        <p class="text-xs text-[#D8C3A5]">Pilih kota untuk berkunjung &amp; naik wahana bersama Adek di samping</p>
+                    </div>
+                    <button type="button" onclick="closeModalDialog()" class="px-3 py-1 rounded-xl btn-mocha font-bold cursor-pointer">✕</button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    ${CITIES_DATA.map((c, i) => `
+                        <div class="p-3.5 rounded-2xl bg-[#3B2922]/85 border ${i === GameState.cityIndex ? 'border-[#D8C3A5]' : 'border-[#D8C3A5]/20'} flex flex-col justify-between gap-2">
+                            <div>
+                                <div class="font-extrabold text-sm text-[#F5EFE5]">${c.name} ${i === GameState.cityIndex ? '• Aktif' : ''}</div>
+                                <div class="text-xs text-[#D8C3A5]">${c.desc}</div>
+                                <div class="text-[11px] text-[#F5EFE5]/90 mt-1">🎡 ${c.rideName}</div>
+                            </div>
+                            <button type="button" onclick="goToCity(${i})" class="btn-caramel py-2 px-3 rounded-xl text-xs font-extrabold cursor-pointer">
+                                Ke ${c.name}
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `);
+        }
+
+        function openMapModal() {
+            musicEngine.playUiTone(540, 0.08);
+            const city = CITIES_DATA[GameState.cityIndex] || CITIES_DATA[0];
+            const px = Math.max(8, Math.min(92, 50 + fallbackActor.x * 1.0));
+            const pz = Math.max(8, Math.min(92, 50 + fallbackActor.z * 1.0));
+            const ax = Math.max(8, Math.min(92, 50 + adekCharacter.root.position.x * 1.0));
+            const az = Math.max(8, Math.min(92, 50 + adekCharacter.root.position.z * 1.0));
+
+            openModalDialog(`
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <h2 class="font-cinzel text-xl sm:text-2xl font-bold text-[#F5EFE5]">🗺️ Peta Kota ${city.name}</h2>
+                        <p class="text-xs text-[#D8C3A5]">Rumah Kita, Musala, Supermarket, Kafe &amp; ${city.rideName}</p>
+                    </div>
+                    <button type="button" onclick="closeModalDialog()" class="px-3 py-1 rounded-xl btn-mocha font-bold cursor-pointer">✕</button>
+                </div>
+
+                <div class="relative w-full h-64 rounded-2xl bg-[#2A1C16] border border-[#D8C3A5]/30 overflow-hidden mb-3">
+                    <div class="absolute inset-x-0 top-1/2 h-3 -translate-y-1/2 bg-[#654638]/75"></div>
+                    <div class="absolute left-[32%] top-[38%] px-2 py-0.5 rounded bg-[#A98265] text-[10px] font-bold text-[#F5EFE5]">Rumah Kita</div>
+                    <div class="absolute left-[46%] top-[36%] px-2 py-0.5 rounded bg-[#D8C3A5] text-[10px] font-bold text-[#3B2922]">Musala</div>
+                    <div class="absolute left-[61%] top-[37%] px-2 py-0.5 rounded bg-[#A98265] text-[10px] font-bold text-[#F5EFE5]">Supermarket</div>
+                    <div class="absolute left-[74%] top-[38%] px-2 py-0.5 rounded bg-[#A98265] text-[10px] font-bold text-[#F5EFE5]">Kafe</div>
+                    <div class="absolute left-[64%] top-[64%] px-2 py-0.5 rounded bg-[#654638] border border-[#D8C3A5]/40 text-[10px] font-bold text-[#F5EFE5]">${city.rideName}</div>
+
+                    <div style="left:${px}%;top:${pz}%;" class="absolute -translate-x-1/2 -translate-y-1/2 px-2 py-0.5 rounded-full bg-[#D8C3A5] text-[#2A1C16] text-[10px] font-extrabold shadow">
+                        ${GameState.playerName}
+                    </div>
+                    <div style="left:${ax}%;top:${az}%;" class="absolute -translate-x-1/2 -translate-y-1/2 px-2 py-0.5 rounded-full bg-[#F5EFE5] text-[#654638] text-[10px] font-extrabold shadow">
+                        Adek
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-5 gap-1.5 mb-3">
+                    ${CITIES_DATA.map((c, i) => `
+                        <button type="button" onclick="goToCity(${i})" class="${i === GameState.cityIndex ? 'btn-caramel' : 'btn-mocha'} py-2 px-1 rounded-xl text-[11px] font-bold cursor-pointer truncate">
+                            ${c.name}
+                        </button>
+                    `).join('')}
+                </div>
+
+                <button type="button" onclick="closeModalDialog()" class="btn-caramel w-full py-2.5 rounded-xl text-xs font-extrabold cursor-pointer">
+                    Tutup Peta
+                </button>
+            `);
+        }
+
+        // Dedicated POV Menu ([V] or HUD Button)
+        function openPovMenu() {
+            musicEngine.playUiTone(540, 0.08);
+            const lockedNow = Boolean(document.pointerLockElement);
+            openModalDialog(`
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="font-cinzel text-xl sm:text-2xl font-bold text-[#F5EFE5]">👁️ Menu POV Kamera</h2>
+                        <p class="text-xs text-[#D8C3A5]">Mode aktif: <strong class="text-[#F5EFE5]">${GameState.povMode ? 'POV (1st Person)' : '3rd Person (Mengikuti)'}</strong></p>
+                    </div>
+                    <button type="button" onclick="closeModalDialog()" class="px-3 py-1 rounded-xl btn-mocha font-bold cursor-pointer">✕</button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                    <button type="button" onclick="setPovCameraMode(true)" class="p-3.5 rounded-2xl border ${GameState.povMode ? 'border-[#F5EFE5] bg-[#A98265]/45' : 'border-[#D8C3A5]/25 bg-[#3B2922]/85'} text-left cursor-pointer">
+                        <div class="text-xs font-extrabold text-[#F5EFE5]">POV (1st Person)</div>
+                        <div class="text-[11px] text-[#D8C3A5] mt-0.5">Sudut pandang mata langsung &amp; kokpit/stang kendaraan.</div>
+                    </button>
+                    <button type="button" onclick="setPovCameraMode(false)" class="p-3.5 rounded-2xl border ${!GameState.povMode ? 'border-[#F5EFE5] bg-[#A98265]/45' : 'border-[#D8C3A5]/25 bg-[#3B2922]/85'} text-left cursor-pointer">
+                        <div class="text-xs font-extrabold text-[#F5EFE5]">3rd Person</div>
+                        <div class="text-[11px] text-[#D8C3A5] mt-0.5">Kamera mengikuti kamu &amp; Adek di samping, wahana, serta kota.</div>
+                    </button>
+                </div>
+
+                <div class="mb-4">
+                    <label for="pov-sens-input" class="block text-xs font-bold text-[#D8C3A5] mb-1">
+                        Sensitivitas Toleh: <span id="pov-sens-readout">${GameState.lookSensitivity.toFixed(1)}x</span>
+                    </label>
+                    <input id="pov-sens-input" type="range" min="0.4" max="2.4" step="0.1" value="${GameState.lookSensitivity}"
+                        oninput="updateLookSensitivity(this.value)" class="w-full cursor-pointer" />
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="togglePointerLockMode()" class="btn-mocha px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer">
+                        ${lockedNow ? 'Lepas Pointer Lock' : 'Kunci Pointer Mouse'}
+                    </button>
+                    <button type="button" onclick="closeModalDialog()" class="btn-caramel flex-1 py-2.5 rounded-xl text-xs font-extrabold cursor-pointer">
+                        Selesai
+                    </button>
+                </div>
+            `);
+        }
+
+        function setPovCameraMode(enabled) {
+            GameState.povMode = Boolean(enabled);
+            const reticle = document.getElementById('pov-reticle');
+            if (reticle) {
+                reticle.classList.toggle('hidden', !GameState.povMode);
+                reticle.classList.toggle('flex', GameState.povMode);
+            }
+            musicEngine.playUiTone(590, 0.07);
+            openPovMenu();
+        }
+
+        function updateLookSensitivity(val) {
+            const num = parseFloat(val);
+            if (!Number.isNaN(num)) {
+                GameState.lookSensitivity = num;
+                const el = document.getElementById('pov-sens-readout');
+                if (el) el.textContent = `${num.toFixed(1)}x`;
+            }
+        }
+
+        function togglePointerLockMode() {
+            try {
+                if (document.pointerLockElement) {
+                    document.exitPointerLock();
+                    showToast('Pointer Lock Dilepas', 'Drag mouse atau pakai tombol Panah untuk menoleh.');
+                    return;
+                }
+                if (canvas && typeof canvas.requestPointerLock === 'function') {
+                    const req = canvas.requestPointerLock();
+                    if (req && typeof req.catch === 'function') {
+                        req.catch(() => {
+                            showToast('Drag / Panah Aktif', 'Geser mouse atau pakai tombol Panah untuk menoleh.');
+                        });
+                    }
+                }
+            } catch (err) {
+                showToast('Drag / Panah Aktif', 'Geser mouse atau pakai tombol Panah untuk menoleh.');
+            }
+        }
+
+        // Toggleable Touch Bar
+        function applyTouchBarState() {
+            const panel = document.getElementById('touch-bar-panel');
+            const btn = document.getElementById('touch-toggle-btn');
+            if (panel) panel.classList.toggle('hidden', !GameState.touchBarVisible);
+            if (btn) btn.textContent = GameState.touchBarVisible ? '🎮 Touch Bar: On' : '🎮 Touch Bar: Off';
+        }
+
+        function toggleTouchBar() {
+            GameState.touchBarVisible = !GameState.touchBarVisible;
+            applyTouchBarState();
+            musicEngine.playUiTone(540, 0.07);
+        }
+
+        // Settings Modal (3-Track List, Local MP3 Loader & "Salin Kode HTML")
+        function openSettingsModal() {
+            musicEngine.playUiTone(540, 0.08);
+            const trackList = musicEngine.localTracks.length > 0 ? musicEngine.localTracks : LOOP_TRACKS_3;
+            openModalDialog(`
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="font-cinzel text-xl sm:text-2xl font-bold text-[#F5EFE5]">⚙️ Pengaturan</h2>
+                    <button type="button" onclick="closeModalDialog()" class="px-3 py-1 rounded-xl btn-mocha font-bold cursor-pointer">✕</button>
+                </div>
+
+                <div class="space-y-3 text-xs">
+                    <div class="p-3 rounded-xl bg-[#3B2922]/85 border border-[#D8C3A5]/20">
+                        <div class="font-extrabold text-[#F5EFE5] mb-1.5">🎵 Daftar 3 Lagu Loop</div>
+                        <div class="space-y-1.5 mb-2">
+                            ${trackList.map((t, i) => `
+                                <button type="button" onclick="musicEngine.selectTrack(${i});openSettingsModal();"
+                                    class="w-full text-left px-3 py-2 rounded-xl ${i === (musicEngine.trackIdx % trackList.length) ? 'btn-caramel font-extrabold' : 'btn-mocha font-semibold'} cursor-pointer">
+                                    ${i + 1}. ${t.title}
+                                </button>
+                            `).join('')}
+                        </div>
+                        <div class="font-bold text-[#D8C3A5] mb-1">Muat File MP3 Lokal</div>
+                        <input type="file" accept="audio/*" multiple onchange="musicEngine.loadLocalFiles(this.files)"
+                            class="block w-full text-xs text-[#D8C3A5] file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-[#A98265] file:text-[#F5EFE5] cursor-pointer" />
+                    </div>
+
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-[#3B2922]/85 border border-[#D8C3A5]/20">
+                        <div>
+                            <div class="font-extrabold text-[#F5EFE5]">🎮 Touch Bar</div>
+                            <div class="text-[#D8C3A5]">Tampilkan atau sembunyikan Touch Bar di layar</div>
+                        </div>
+                        <button type="button" onclick="toggleTouchBar();openSettingsModal();" class="btn-caramel px-3 py-2 rounded-xl font-extrabold cursor-pointer">
+                            ${GameState.touchBarVisible ? 'Sembunyikan' : 'Tampilkan'}
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-[#3B2922]/85 border border-[#D8C3A5]/20">
+                        <div>
+                            <div class="font-extrabold text-[#F5EFE5]">📋 Salin Kode HTML</div>
+                            <div class="text-[#D8C3A5]">Salin seluruh kode HTML satu file ke clipboard</div>
+                        </div>
+                        <button type="button" onclick="copySourceHtmlToClipboard()" class="btn-caramel px-3 py-2 rounded-xl font-extrabold cursor-pointer">
+                            Salin Kode HTML
+                        </button>
+                    </div>
+                </div>
+            `);
+        }
+
+        // =====================================================================
+        // INPUT LISTENERS (WASD + ARROWS + Q/E + CLICK POINTER LOCK + DRAG)
+        // =====================================================================
+        const activeKeys = {};
+        let cameraYaw = 0;
+        let cameraPitch = 0.22;
+        let pointerDragging = false;
+        let prevPointerX = 0;
+        let prevPointerY = 0;
+
+        window.addEventListener('keydown', (e) => {
+            activeKeys[e.code] = true;
+            if (!GameState.playing || GameState.photoMode) return;
+            const modalOpen = !document.getElementById('modal-overlay').classList.contains('hidden');
+            if (modalOpen) {
+                if (e.code === 'Escape') closeModalDialog();
+                return;
+            }
+            if (e.code === 'KeyE' && !e.repeat) {
+                // If not near an interaction point, Q/E also supports smooth yaw look
+                const near = findNearestPoint();
+                if (near) performNearestInteraction();
+            }
+            if (e.code === 'KeyG') openAdekModal();
+            if (e.code === 'KeyM') openMapModal();
+            if (e.code === 'KeyV') {
+                GameState.povMode = !GameState.povMode;
+                const reticle = document.getElementById('pov-reticle');
+                if (reticle) {
+                    reticle.classList.toggle('hidden', !GameState.povMode);
+                    reticle.classList.toggle('flex', GameState.povMode);
+                }
+                musicEngine.playUiTone(590, 0.07);
+                showToast('👁️ Kamera POV', GameState.povMode ? 'Mode POV (1st Person) aktif.' : 'Mode 3rd Person aktif.');
+            }
+            if (e.code === 'KeyP') enterPhotoMode();
+        });
+
+        window.addEventListener('keyup', (e) => {
+            activeKeys[e.code] = false;
+        });
+
+        document.querySelectorAll('.touch-pad').forEach((btn) => {
+            const code = btn.getAttribute('data-code');
+            const down = (ev) => {
+                ev.preventDefault();
+                activeKeys[code] = true;
+            };
+            const up = (ev) => {
+                ev.preventDefault();
+                activeKeys[code] = false;
+            };
+            btn.addEventListener('mousedown', down);
+            btn.addEventListener('mouseup', up);
+            btn.addEventListener('mouseleave', up);
+            btn.addEventListener('touchstart', down, { passive: false });
+            btn.addEventListener('touchend', up, { passive: false });
+            btn.addEventListener('touchcancel', up, { passive: false });
+        });
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (!GameState.playing) return;
+            pointerDragging = true;
+            prevPointerX = e.clientX;
+            prevPointerY = e.clientY;
+            if (!GameState.photoMode && document.pointerLockElement !== canvas) {
+                try {
+                    if (typeof canvas.requestPointerLock === 'function') {
+                        const req = canvas.requestPointerLock();
+                        if (req && typeof req.catch === 'function') req.catch(() => {});
+                    }
+                } catch (err) {}
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!GameState.playing) return;
+            const sens = 0.004 * GameState.lookSensitivity;
+            if (document.pointerLockElement === canvas) {
+                cameraYaw -= (e.movementX || 0) * sens;
+                cameraPitch = Math.max(-0.45, Math.min(1.1, cameraPitch + (e.movementY || 0) * sens));
+            } else if (pointerDragging) {
+                const dx = e.clientX - prevPointerX;
+                const dy = e.clientY - prevPointerY;
+                prevPointerX = e.clientX;
+                prevPointerY = e.clientY;
+                cameraYaw -= dx * sens * 1.3;
+                cameraPitch = Math.max(-0.45, Math.min(1.1, cameraPitch + dy * sens * 1.3));
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            pointerDragging = false;
+        });
+
+        function findNearestPoint() {
+            const px = fallbackActor.x;
+            const pz = fallbackActor.z;
+            let best = null;
+            let minDist = Infinity;
+            for (const pt of interactionPoints) {
+                const d = Math.hypot(pt.x - px, pt.z - pz);
+                if (d <= pt.radius && d < minDist) {
+                    best = pt;
+                    minDist = d;
+                }
+            }
+            return best;
+        }
+
+        function performNearestInteraction() {
+            if (!GameState.playing || GameState.photoMode) return;
+            const pt = findNearestPoint();
+            if (pt && typeof pt.action === 'function') {
+                pt.action();
+            } else {
+                showToast('ℹ️ Dekati Target', 'Dekati pintu bangunan, wahana kota, kendaraan, atau warga.');
+            }
+        }
+
+        function refreshHud() {
+            const city = CITIES_DATA[GameState.cityIndex] || CITIES_DATA[0];
+            const pTitle = document.getElementById('hud-player-title');
+            const cLabel = document.getElementById('hud-city-label');
+            const tBadge = document.getElementById('hud-time-badge');
+            const saldoEl = document.getElementById('hud-saldo');
+            const energiEl = document.getElementById('hud-energi');
+            const adekEl = document.getElementById('hud-adek-state');
+            const galEl = document.getElementById('hud-gallery-count');
+            const vfCountEl = document.getElementById('viewfinder-photo-count');
+
+            if (pTitle) pTitle.textContent = `${GameState.playerName} • ${GameState.gender}`;
+            if (cLabel) cLabel.textContent = city.name;
+            if (tBadge) tBadge.textContent = GameState.isNight ? '• Malam' : '• Siang';
+            if (saldoEl) saldoEl.textContent = `Rp ${GameState.saldo.toLocaleString('id-ID')}`;
+            if (energiEl) energiEl.textContent = `${Math.round(GameState.energi)}%`;
+            if (adekEl) {
+                adekEl.textContent = GameState.adek.holdingHand
+                    ? 'Gandeng'
+                    : (GameState.adek.following ? 'Di Samping' : 'Diam');
+            }
+            if (galEl) galEl.textContent = String(GameState.photos.length);
+            if (vfCountEl) vfCountEl.textContent = String(GameState.photos.length);
+        }
+
+        // =====================================================================
+        // 2D FALLBACK CANVAS RENDERER (IF THREE.JS CDN IS UNAVAILABLE)
+        // =====================================================================
+        function drawFallback2DScene(now) {
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+            const w = canvas.width;
+            const h = canvas.height;
+            const city = CITIES_DATA[GameState.cityIndex] || CITIES_DATA[0];
+
+            ctx.fillStyle = GameState.isNight ? '#241813' : '#654638';
+            ctx.fillRect(0, 0, w, h);
+
+            ctx.fillStyle = '#3B2922';
+            ctx.fillRect(0, h * 0.55, w, h * 0.45);
+
+            ctx.fillStyle = '#F5EFE5';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.fillText(`${city.name} • ${GameState.playerName} & Adek (Di Samping)`, 24, h * 0.72);
+
+            const cx = w * 0.5;
+            const cy = h * 0.58 + Math.sin(now * 0.004) * 3;
+            // Player
+            ctx.fillStyle = GameState.shirtColor;
+            ctx.fillRect(cx - 32, cy - 28, 22, 36);
+            // Adek beside player (brown hijab #6E472B + cream outfit #F5EFE5)
+            ctx.fillStyle = '#F5EFE5';
+            ctx.fillRect(cx + 6, cy - 26, 20, 34);
+            ctx.fillStyle = '#6E472B';
+            ctx.beginPath();
+            ctx.arc(cx + 16, cy - 34, 11, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // =====================================================================
+        // MAIN FRAME LOOP
+            let lastFrameTime = performance.now();
+        function renderLoop(now) {
+            requestAnimationFrame(renderLoop);
+            const dt = Math.min(0.05, Math.max(0.001, (now - lastFrameTime) / 1000));
+            lastFrameTime = now;
+
+            // Self-healing guard so Abang and Adek never vanish after UI/clipboard actions
+            ensureCharactersHealthyAndVisible();
+
+            // Arrow keys & Q/E look controls
+            if (activeKeys['ArrowLeft'] || activeKeys['KeyQ']) cameraYaw += 1.9 * GameState.lookSensitivity * dt;
+            if (activeKeys['ArrowRight']) cameraYaw -= 1.9 * GameState.lookSensitivity * dt;
+            if (activeKeys['ArrowUp']) cameraPitch = Math.min(1.1, cameraPitch + 1.15 * dt);
+            if (activeKeys['ArrowDown']) cameraPitch = Math.max(-0.45, cameraPitch - 1.15 * dt);
+
+            if (GameState.heldPropTimer > 0) {
+                GameState.heldPropTimer -= dt;
+                if (GameState.heldPropTimer <= 0) {
+                    setHeldPropForBoth(null, 0);
+                }
+            }
+
+            if (hasThree) {
+                spinners.forEach((sp) => {
+                    sp.obj.rotation.z += sp.speed * dt;
+                });
+
+                if (acBreezeGroup && acBreezeGroup.visible) {
+                    acBreezeGroup.children.forEach((puff, idx) => {
+                        puff.position.z = -6.2 + (((now * 0.002 + idx * 0.45) % 2.4));
+                        puff.position.y = 2.8 - Math.sin(now * 0.004 + idx) * 0.25;
+                    });
+                }
+
+                townNpcs.forEach((n) => {
+                    n.rig.root.position.x = n.baseX + Math.sin(now * 0.0012 + n.seed) * 0.6;
+                    n.rig.leftLeg.rotation.x = Math.sin(now * 0.004 + n.seed) * 0.25;
+                    n.rig.rightLeg.rotation.x = -Math.sin(now * 0.004 + n.seed) * 0.25;
+                });
+            }
+
+            if (GameState.playing && !GameState.photoMode) {
+                const forwardInput = (activeKeys['KeyW'] ? 1 : 0) - (activeKeys['KeyS'] ? 1 : 0);
+                const turnInput = (activeKeys['KeyA'] ? 1 : 0) - (activeKeys['KeyD'] ? 1 : 0);
+                const moving = Math.abs(forwardInput) > 0 || Math.abs(turnInput) > 0;
+
+                const activeVeh = cityVehicles.find((v) => v.kind === GameState.ridingMode) || null;
+
+                if (GameState.ridingMode === 'city_ride' && cityRideObject && hasThree && cityRideObject.gondola) {
+                    const gPos = new THREE.Vector3();
+                    cityRideObject.gondola.getWorldPosition(gPos);
+                    const gRight = getRightVectorFromYaw(cityRideObject.group.rotation.y);
+
+                    fallbackActor.x = gPos.x;
+                    fallbackActor.y = gPos.y + 0.15;
+                    fallbackActor.z = gPos.z;
+                    fallbackActor.yaw = cityRideObject.group.rotation.y;
+
+                    playerCharacter.root.position.set(gPos.x - gRight.x * 0.48, gPos.y + 0.15, gPos.z - gRight.z * 0.48);
+                    playerCharacter.root.rotation.y = cityRideObject.group.rotation.y;
+
+                    adekCharacter.root.visible = true;
+                    adekCharacter.root.position.set(gPos.x + gRight.x * 0.48, gPos.y + 0.15, gPos.z + gRight.z * 0.48);
+                    adekCharacter.root.rotation.y = cityRideObject.group.rotation.y;
+                } else if (activeVeh) {
+                    activeVeh.yaw += turnInput * 2.1 * dt;
+                    if (hasThree) activeVeh.mesh.rotation.y = activeVeh.yaw;
+
+                    const fwd = getForwardVectorFromYaw(activeVeh.yaw);
+                    const rightVec = getRightVectorFromYaw(activeVeh.yaw);
+                    const nx = activeVeh.mesh.position.x + fwd.x * forwardInput * activeVeh.speed * dt;
+                    const nz = activeVeh.mesh.position.z + fwd.z * forwardInput * activeVeh.speed * dt;
+                    const slid = slideMovePosition(nx, nz, 1.1);
+                    activeVeh.mesh.position.x = slid.x;
+                    activeVeh.mesh.position.z = slid.z;
+                    const baseY = activeVeh.kind === 'plane' ? 2.2 : 0.35;
+                    activeVeh.mesh.position.y = baseY;
+
+                    fallbackActor.x = slid.x;
+                    fallbackActor.y = baseY + 0.45;
+                    fallbackActor.z = slid.z;
+                    fallbackActor.yaw = activeVeh.yaw;
+
+                    playerCharacter.root.position.set(slid.x, baseY + 0.45, slid.z);
+                    playerCharacter.root.rotation.y = activeVeh.yaw;
+
+                    // Adek positioned BESIDE Abang inside/on vehicle
+                    adekCharacter.root.visible = true;
+                    adekCharacter.root.position.set(
+                        slid.x + rightVec.x * 0.92,
+                        baseY + 0.45,
+                        slid.z + rightVec.z * 0.92
+                    );
+                    adekCharacter.root.rotation.y = activeVeh.yaw;
+                } else {
+                    const walkSpeed = 6.2;
+                    if (turnInput !== 0) {
+                        fallbackActor.yaw += turnInput * 2.5 * dt;
+                        cameraYaw = fallbackActor.yaw;
+                    }
+                    const yawNow = fallbackActor.yaw;
+                    const fwd = getForwardVectorFromYaw(yawNow);
+                    const rightVec = getRightVectorFromYaw(yawNow);
+
+                    const nextX = fallbackActor.x + fwd.x * forwardInput * walkSpeed * dt;
+                    const nextZ = fallbackActor.z + fwd.z * forwardInput * walkSpeed * dt;
+
+                    if (GameState.insideBuilding) {
+                        fallbackActor.x = Math.max(-5.8, Math.min(5.8, nextX));
+                        fallbackActor.z = Math.max(-5.8, Math.min(5.8, nextZ));
+                        fallbackActor.y = 0;
+                    } else {
+                        const slid = slideMovePosition(nextX, nextZ, 0.65);
+                        fallbackActor.x = slid.x;
+                        fallbackActor.z = slid.z;
+                        fallbackActor.y = 0;
+                    }
+
+                    playerCharacter.root.position.set(fallbackActor.x, fallbackActor.y, fallbackActor.z);
+                    playerCharacter.root.rotation.y = yawNow;
+
+                    const stride = moving ? Math.sin(now * 0.011) * 0.65 : 0;
+                    playerCharacter.leftLeg.rotation.x = stride;
+                    playerCharacter.rightLeg.rotation.x = -stride;
+                    playerCharacter.leftArm.rotation.x = -stride * 0.7;
+                    playerCharacter.rightArm.rotation.x = GameState.heldProp ? -0.65 : stride * 0.7;
+
+                    // Keep Adek BESIDE Abang along right lateral offset (slightly forward/aligned)
+                    if (!GameState.insideBuilding && GameState.adek.following) {
+                        adekCharacter.root.visible = true;
+                        const sideDist = GameState.adek.holdingHand ? 0.95 : 1.25;
+                        const slightAhead = 0.22;
+                        const targetX = fallbackActor.x + rightVec.x * sideDist + fwd.x * slightAhead;
+                        const targetZ = fallbackActor.z + rightVec.z * sideDist + fwd.z * slightAhead;
+
+                        const aSlid = slideMovePosition(targetX, targetZ, 0.55);
+                        const curX = adekCharacter.root.position.x || aSlid.x;
+                        const curZ = adekCharacter.root.position.z || aSlid.z;
+                        const nextAX = curX + (aSlid.x - curX) * Math.min(1, dt * 8);
+                        const nextAZ = curZ + (aSlid.z - curZ) * Math.min(1, dt * 8);
+
+                        adekCharacter.root.position.set(nextAX, 0, nextAZ);
+                        adekCharacter.root.rotation.y = yawNow;
+
+                        const aStride = moving ? Math.sin(now * 0.011 + 0.4) * 0.55 : 0;
+                        adekCharacter.leftLeg.rotation.x = aStride;
+                        adekCharacter.rightLeg.rotation.x = -aStride;
+                        adekCharacter.leftArm.rotation.x = GameState.adek.holdingHand ? 0.35 : -aStride * 0.6;
+                        adekCharacter.rightArm.rotation.x = GameState.adek.holdingHand ? 0.35 : (GameState.heldProp ? -0.65 : aStride * 0.6);
+                    } else if (!GameState.insideBuilding) {
+                        adekCharacter.root.visible = false;
+                    }
+                }
+
+                if (hasThree && renderer && camera) {
+                    if (GameState.povMode) {
+                        camera.position.set(
+                            fallbackActor.x,
+                            fallbackActor.y + 1.68,
+                            fallbackActor.z
+                        );
+                        camera.lookAt(
+                            camera.position.x + Math.sin(cameraYaw) * Math.cos(cameraPitch) * 10,
+                            camera.position.y + Math.sin(cameraPitch) * 10,
+                            camera.position.z + Math.cos(cameraYaw) * Math.cos(cameraPitch) * 10
+                        );
+                    } else {
+                        const camDist = GameState.ridingMode === 'city_ride' ? 8.5 : (GameState.ridingMode === 'plane' ? 9.5 : 6.4);
+                        const cx = fallbackActor.x - Math.sin(cameraYaw) * Math.cos(cameraPitch) * camDist;
+                        const cy = Math.max(1.4, fallbackActor.y + 1.8 + Math.sin(cameraPitch) * camDist);
+                        const cz = fallbackActor.z - Math.cos(cameraYaw) * Math.cos(cameraPitch) * camDist;
+                        camera.position.lerp(new THREE.Vector3(cx, cy, cz), Math.min(1, dt * 10));
+                        camera.lookAt(fallbackActor.x + 0.55, fallbackActor.y + 1.35, fallbackActor.z);
+                    }
+                }
+
+                const nearPt = findNearestPoint();
+                const banner = document.getElementById('interact-banner');
+                const bannerLbl = document.getElementById('interact-banner-label');
+                if (banner && bannerLbl) {
+                    if (nearPt) {
+                        bannerLbl.textContent = `${nearPt.label} [E]`;
+                        banner.classList.remove('hidden');
+                    } else {
+                        banner.classList.add('hidden');
+                    }
+                }
+            } else if (GameState.photoMode) {
+                const pose = PHOTO_POSES[GameState.photoPoseIndex] || PHOTO_POSES[0];
+                adekCharacter.root.visible = true;
+                adekCharacter.headGroup.rotation.z = pose.headTilt;
+                adekCharacter.rightArm.rotation.x = pose.armLift;
+                adekCharacter.root.position.y = Math.abs(Math.sin(now * 0.004)) * pose.bounce;
+
+                if (hasThree && renderer && camera) {
+                    adekCharacter.root.lookAt(camera.position.x, adekCharacter.root.position.y, camera.position.z);
+                    camera.position.set(
+                        adekCharacter.root.position.x + Math.sin(cameraYaw) * 3.8,
+                        1.65,
+                        adekCharacter.root.position.z + Math.cos(cameraYaw) * 3.8
+                    );
+                    camera.lookAt(adekCharacter.root.position.x, 1.35, adekCharacter.root.position.z);
+                }
+            }
+
+            if (hasThree && renderer && scene && camera) {
+                renderer.render(scene, camera);
+            } else {
+                drawFallback2DScene(now);
+            }
+        }
+        requestAnimationFrame(renderLoop);
+    </script>
+
+</body></html>
